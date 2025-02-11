@@ -1,0 +1,32 @@
+{
+  "name": "ylazzari-correoargentino",
+  "version": "0.0.1",
+  "description": "API para cotizar envíos de correo argentino, con la API de correo argentino",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "dev": "ts-node src/miCorreo/ejemplo-uso.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "correo argentino",
+    "api correo argentino",
+    "cotizar envíos correo argentino"
+  ],
+  "author": "Yamil Lazzari",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.9"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/node": "^22.13.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YamilEzequiel/correo-argentino"
+  },
+  "homepage": "https://github.com/YamilEzequiel/correo-argentino#readme"
+}
