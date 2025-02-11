@@ -16,7 +16,8 @@
   "author": "Yamil Lazzari",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.7.9"
+    "axios": "^1.7.9",
+    "env": "^0.0.2"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",

@@ -12,12 +12,12 @@ async function main() {
    */
   const correoApi = new CorreoArgentinoApi();
 
-  const email = "";
-  const password = "";
-  const userToken = "";
-  const passwordToken = "";
-  const environment = Environment.PROD;
-  const customerId = "";
+  const email = process.env.EMAIL || "";
+  const password = process.env.PASSWORD || "";
+  const userToken = process.env.USER_TOKEN || "";
+  const passwordToken = process.env.PASSWORD_TOKEN || "";
+  const environment: Environment = (process.env.ENVIRONMENT as Environment) || Environment.PROD;
+  const customerId = process.env.CUSTOMER_ID || "";
 
   /**
    * Tenemos dos formas de inicializar la API
@@ -43,7 +43,6 @@ async function main() {
       password: password,
       environment: environment,
     });
-
   } catch (error) {
     console.error("Error al inicializar:", error);
   }
