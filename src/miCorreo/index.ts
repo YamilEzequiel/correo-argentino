@@ -11,9 +11,9 @@ import {
   ResponseRates,
   ResponseUserRegister,
   UserRegister,
-} from "../types/interface";
-import { URL_PROD, URL_TEST } from "../setting/enviroment";
-import { Environment, FunctionMethod, ProvinceCode } from "../types/enum";
+} from "../types/interface.js";
+import { URL_PROD, URL_TEST } from "../setting/enviroment.js";
+import { Environment, FunctionMethod, ProvinceCode } from "../types/enum.js";
 
 export default class CorreoArgentinoApi {
   private api: any;

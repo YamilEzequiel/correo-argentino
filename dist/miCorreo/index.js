@@ -1,12 +1,7 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
-const enviroment_1 = require("../setting/enviroment");
-const enum_1 = require("../types/enum");
-class CorreoArgentinoApi {
+import axios from "axios";
+import { URL_PROD, URL_TEST } from "../setting/enviroment.js";
+import { Environment, FunctionMethod } from "../types/enum.js";
+export default class CorreoArgentinoApi {
     /**
      * Constructor de la clase CorreoArgentinoApi
      * @returns {void}
@@ -30,7 +25,7 @@ class CorreoArgentinoApi {
         this.password = "";
         this.customerId = "";
         this.token = "";
-        this.environment = enum_1.Environment.PROD;
+        this.environment = Environment.PROD;
     }
     /**
      * Inicializa la API sin CustomerId este se obtiene en el método getCustomerId
@@ -87,7 +82,7 @@ class CorreoArgentinoApi {
             };
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.generateBasicAuth);
+            throw this.errorCapture(error, FunctionMethod.generateBasicAuth);
         }
     }
     /**
@@ -106,8 +101,8 @@ class CorreoArgentinoApi {
             this.api.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
             // Recreamos la instancia de axios con los nuevos headers
             const basicAuth = Buffer.from(`${this.userToken}:${this.passwordToken}`).toString("base64");
-            this.api = axios_1.default.create({
-                baseURL: this.environment === enum_1.Environment.PROD ? enviroment_1.URL_PROD : enviroment_1.URL_TEST,
+            this.api = axios.create({
+                baseURL: this.environment === Environment.PROD ? URL_PROD : URL_TEST,
                 headers: {
                     Authorization: `Bearer ${this.token}`,
                     Basic: basicAuth,
@@ -117,7 +112,7 @@ class CorreoArgentinoApi {
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.authToken);
+            throw this.errorCapture(error, FunctionMethod.authToken);
         }
     }
     /**
@@ -151,7 +146,7 @@ class CorreoArgentinoApi {
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.userValidate);
+            throw this.errorCapture(error, FunctionMethod.userValidate);
         }
     }
     /**
@@ -210,7 +205,7 @@ class CorreoArgentinoApi {
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.rates);
+            throw this.errorCapture(error, FunctionMethod.rates);
         }
     }
     /**
@@ -220,9 +215,9 @@ class CorreoArgentinoApi {
      */
     setEnvironment(environment) {
         this.environment = environment;
-        const url = environment === enum_1.Environment.PROD ? enviroment_1.URL_PROD : enviroment_1.URL_TEST;
+        const url = environment === Environment.PROD ? URL_PROD : URL_TEST;
         const basicAuth = Buffer.from(`${this.userToken}:${this.passwordToken}`).toString("base64");
-        this.api = axios_1.default.create({
+        this.api = axios.create({
             baseURL: url,
             headers: {
                 Authorization: `Basic ${basicAuth}`,
@@ -244,7 +239,7 @@ class CorreoArgentinoApi {
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.userRegister);
+            throw this.errorCapture(error, FunctionMethod.userRegister);
         }
     }
     /**
@@ -259,7 +254,7 @@ class CorreoArgentinoApi {
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.agencies);
+            throw this.errorCapture(error, FunctionMethod.agencies);
         }
     }
     /**
@@ -323,4 +318,3 @@ class CorreoArgentinoApi {
         return this.environment;
     }
 }
-exports.default = CorreoArgentinoApi;

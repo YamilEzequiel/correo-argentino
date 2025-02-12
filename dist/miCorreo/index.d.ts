@@ -1,5 +1,5 @@
-import { InitializeMiCorreo, InitializeMiCorreoWithCustomerId, ProductRates, ResponseAgencies, ResponseCustomerId, ResponseRates, ResponseUserRegister, UserRegister } from "../types/interface";
-import { Environment, FunctionMethod, ProvinceCode } from "../types/enum";
+import { InitializeMiCorreo, InitializeMiCorreoWithCustomerId, ProductRates, ResponseAgencies, ResponseCustomerId, ResponseRates, ResponseUserRegister, UserRegister } from "../types/interface.js";
+import { Environment, FunctionMethod, ProvinceCode } from "../types/enum.js";
 export default class CorreoArgentinoApi {
     private api;
     private userToken;

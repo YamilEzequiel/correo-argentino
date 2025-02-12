@@ -1,16 +1,41 @@
 {
   "name": "ylazzari-correoargentino",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "API wrapper para el servicio de MiCorreo de Correo Argentino",
   "main": "dist/miCorreo/index.js",
+  "module": "dist/miCorreo/index.js",
   "types": "dist/miCorreo/index.d.ts",
+  "type": "module",
   "files": [
     "dist",
     "README.md"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/miCorreo/index.js",
+      "require": "./dist/miCorreo/index.js",
+      "types": "./dist/miCorreo/index.d.ts"
+    },
+    "./setting": {
+      "import": "./dist/setting/index.js",
+      "require": "./dist/setting/index.js",
+      "types": "./dist/setting/index.d.ts"
+    },
+    "./enums": {
+      "import": "./dist/types/enum.js",
+      "require": "./dist/types/enum.js",
+      "types": "./dist/types/enum.d.ts"
+    },
+    "./interfaces": {
+      "import": "./dist/types/interface.js",
+      "require": "./dist/types/interface.js",
+      "types": "./dist/types/interface.d.ts"
+    }
+  },
   "scripts": {
-    "build": "tsc",
-    "prepare": "npm run build"
+    "build": "npm run clean && tsc",
+    "prepare": "npm run build",
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "correo-argentino",
@@ -24,15 +49,21 @@
     "type": "git",
     "url": "git+https://github.com/YamilEzequiel/correo-argentino"
   },
-  "dependencies": {
-    "axios": "^1.6.0",
-    "dotenv": "^16.0.0"
+  "peerDependencies": {
+    "axios": "^1.x",
+    "dotenv": "^16.x"
   },
+  "dependencies": {},
   "devDependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.0.0",
     "@types/node": "^20.0.0",
     "typescript": "^5.0.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

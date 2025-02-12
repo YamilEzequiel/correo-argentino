@@ -1,6 +1,6 @@
 # Correo Argentino API Client
 
-> ⚠️ **AVISO**: Esta librería está en desarrollo activo y aún no está finalizada. Algunas funcionalidades podrían cambiar o estar incompletas.
+> ⚠️ **AVISO**: Esta librería está en desarrollo activo y aún no está finalizada. Algunas funcionalidades podrían cambiar o estar incompletas. 
 
 Cliente API no oficial para integrar los servicios de Correo Argentino en aplicaciones Node.js.
 
@@ -38,7 +38,9 @@ npm install ylazzari-correoargentino
 Útil cuando no se tiene el customerId previamente:
 
 ```typescript
-import CorreoArgentinoApi from 'ylazzari-correoargentino';
+import CorreoArgentinoApi from "ylazzari-correoargentino";
+import { Environment } from "ylazzari-correoargentino/enums";
+import { ResponseAuthToken } from "ylazzari-correoargentino/interfaces";
 
 const correoApi = new CorreoArgentinoApi();
 await correoApi.initializeAll({
@@ -48,6 +50,21 @@ await correoApi.initializeAll({
   password: "your_password",
   environment: Environment.PROD,
 });
+```
+
+Como vimos anteriormente puedes importar enumeraciones y interfaces de la siguiente manera:
+
+```typescript
+import { Environment } from "ylazzari-correoargentino/enums";
+import { ResponseAuthToken } from "ylazzari-correoargentino/interfaces";
+```
+
+Si tienes errores con load modules al ejecutar en js recuerda tener el archivo `package.json` con el siguiente formato:
+
+```json
+{
+  "type": "module"
+}
 ```
 
 ### 2. Inicialización con CustomerId
