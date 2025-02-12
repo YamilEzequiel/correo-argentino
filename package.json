@@ -1,6 +1,6 @@
 {
   "name": "ylazzari-correoargentino",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "API para cotizar envíos de correo argentino, con la API de correo argentino",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "axios": "^1.7.9",
-    "env": "^0.0.2"
+    "dotenv": "^16.4.7"
   },
   "devDependencies": {
     "@types/axios": "^0.9.36",

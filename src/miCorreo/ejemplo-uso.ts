@@ -1,6 +1,8 @@
-import { DeliveredType, Environment } from "../types/enum";
-import { InitializeMiCorreoWithCustomerId, ProductRates } from "../types/interface";
+import { DeliveredType, DocumentType, Environment, ProvinceCode } from "../types/enum";
+import { InitializeMiCorreoWithCustomerId, ProductRates, UserRegister } from "../types/interface";
 import CorreoArgentinoApi from "./index";
+import dotenv from "dotenv";
+dotenv.config();
 
 /**
  * Función principal que muestra un ejemplo de uso de la API de MiCorreo
@@ -69,7 +71,7 @@ async function main() {
   /**
    * Obtener el costo de envio de un paquete
    * Puedes enviar un array de productos o un solo producto
-   * @returns {void}
+   * @returns {ResponseUserRegister}
    * @throws {Error} Si ocurre un error al obtener las tarifas
    */
   const data: ProductRates = {
@@ -81,6 +83,38 @@ async function main() {
   };
   const responseCost = await correoApi.getRates(data);
   console.log(responseCost);
+
+  /**
+   * Registrar un nuevo usuario
+   */
+  const dataUser: UserRegister = {
+    email: "test@test.com",
+    password: "123456",
+    firstName: "Test",
+    lastName: "Test",
+    documentType: DocumentType.DNI,
+    documentId: "12345678",
+    phone: "444555666",
+    cellPhone: "1234567890",
+    address: {
+      streetName: "Test",
+      streetNumber: "123",
+      floor: "1",
+      apartment: "1",
+      locality: "Test",
+      city: "Test",
+      provinceCode: "B",
+      postalCode: "B1234",
+    },
+  };
+  const responseUser = await correoApi.userRegister(dataUser);
+  console.log(responseUser);
+
+  /**
+   * Obtener las agencias de envío
+   */
+  const responseAgencies = await correoApi.getAgencies(ProvinceCode["Ciudad Autónoma de Buenos Aires"]);
+  console.log(responseAgencies);
 }
 
 main();

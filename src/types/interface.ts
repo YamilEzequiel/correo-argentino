@@ -1,4 +1,4 @@
-import { DeliveredType, Environment, ProductType } from "./enum";
+import { AgencyStatus, DeliveredType, DocumentType, Environment, ProductType } from "./enum";
 
 /**
  * Interfaz que define la respuesta exitosa de autenticación
@@ -189,7 +189,6 @@ export interface ResponseGenerateBasicAuth {
   token: string;
 }
 
-
 /**
  * Interfaz que define la respuesta de la cotización de envío
  */
@@ -215,7 +214,6 @@ export interface ResponseRates {
    */
   rates: Rate[];
 }
-
 
 /**
  * Interfaz que define la respuesta de la tarifa de envío
@@ -250,4 +248,268 @@ export interface Rate {
    * Tiempo de entrega máximo
    */
   deliveryTimeMax: string;
+}
+
+/**
+ * Interfaz que define los datos necesarios para registrar un usuario con DNI
+ * @example
+ * {
+ *   "firstName": "Yamil",
+ *   "lastName": "Lazzari",
+ *   "email": "yamillazzari@gmail.com",
+ *   "password": "123456",
+ *   "documentType": "DNI",
+ *   "documentId": "32471960",
+ *   "phone": "1165446544",
+ *   "cellPhone": "1165446544",
+ *   "address": {
+ *     "streetName": "Vicente Lopez",
+ *     "streetNumber": "448",
+ *     "floor": "1",
+ *     "apartment": "D",
+ *     "locality": "Monte Grande",
+ *     "city": "Esteban Echeverria",
+ *     "provinceCode": "B",
+ *     "postalCode": "B1842ZAB"
+ *   }
+ * }
+ */
+export interface UserRegister {
+  /**
+   * Nombre del usuario
+   */
+  firstName: string;
+
+  /**
+   * Apellido del usuario
+   */
+  lastName: string;
+
+  /**
+   * Correo electrónico del usuario
+   */
+  email: string;
+
+  /**
+   * Contraseña del usuario
+   */
+  password: string;
+
+  /**
+   * Tipo de documento del usuario
+   */
+  documentType: DocumentType.DNI | DocumentType.CUIT;
+
+  /**
+   * Número de documento del usuario
+   */
+  documentId: string;
+
+  /**
+   * Teléfono del usuario
+   */
+  phone: string;
+
+  /**
+   * Celular del usuario
+   */
+  cellPhone: string;
+
+  /**
+   * Dirección del usuario
+   */
+  address: Address;
+}
+
+
+/**
+ * Interfaz que define la dirección del usuario
+ * @example
+ * {
+ *   "streetName": "Vicente Lopez",
+ *   "streetNumber": "448",
+ *   "floor": "1",
+ *   "apartment": "D",
+ *   "locality": "Monte Grande",
+ *   "city": "Esteban Echeverria",
+ *   "provinceCode": "B",
+ *   "postalCode": "B1842ZAB"
+ * }
+ */
+export interface Address {
+  /**
+   * Nombre de la calle
+   */
+  streetName: string;
+
+  /**
+   * Número de la calle
+   */
+  streetNumber: string;
+
+  /**
+   * Piso
+   */
+  floor: string;
+
+  /**
+   * Departamento
+   */
+  apartment: string;
+
+  /**
+   * Localidad
+   */
+  locality: string;
+
+  /**
+   * Ciudad
+   */
+  city: string;
+
+  /**
+   * Código de provincia
+   */
+  provinceCode: string;
+
+  /**
+   * Código postal
+   */
+  postalCode: string;
+}
+
+/**
+ * Interfaz que define la respuesta de la creación de un usuario
+ */
+export interface ResponseUserRegister {
+  /**
+   * Fecha de creación del usuario
+   */
+  createdAt: string;
+
+  /**
+   * Identificador único del cliente
+   */
+  customerId: string;
+}
+
+/**
+ * Interfaz que define la respuesta de la creación de un usuario
+ */
+export interface ResponseUserRegisterError {
+  /**
+   * Mensaje descriptivo del error
+   */
+  message: string;
+
+  /**
+   * Código del error
+   */
+  code: string;
+}
+
+/**
+ * Interfaz que define los horarios de atención
+ */
+export interface BusinessHours {
+  start: string;
+  end: string;
+}
+
+/**
+ * Interfaz que define los horarios semanales
+ */
+export interface WeeklySchedule {
+  sunday: BusinessHours | null;
+  monday: BusinessHours | null;
+  tuesday: BusinessHours | null;
+  wednesday: BusinessHours | null;
+  thursday: BusinessHours | null;
+  friday: BusinessHours | null;
+  saturday: BusinessHours | null;
+  holidays: BusinessHours | null;
+}
+
+/**
+ * Interfaz que define los servicios disponibles
+ */
+export interface AgencyServices {
+  /**
+   * Recibo de paquetes
+   */
+  packageReception: boolean;
+
+  /**
+   * Recogida de paquetes
+   */
+  pickupAvailability: boolean;
+}
+
+/**
+ * Interfaz que define la ubicación de la agencia
+ */
+export interface AgencyLocation {
+  address: Address;
+  latitude: string;
+  longitude: string;
+}
+
+/**
+ * Interfaz que define una agencia
+ */
+export interface Agency {
+  /**
+   * Código único de la agencia
+   */
+  code: string;
+
+  /**
+   * Nombre de la agencia
+   */
+  name: string;
+
+  /**
+   * Nombre del gerente
+   */
+  manager: string;
+
+  /**
+   * Correo electrónico de contacto
+   */
+  email: string;
+
+  /**
+   * Teléfono de contacto
+   */
+  phone: string;
+
+  /**
+   * Servicios disponibles
+   */
+  services: AgencyServices;
+
+  /**
+   * Ubicación de la agencia
+   */
+  location: AgencyLocation;
+
+  /**
+   * Horarios de atención
+   */
+  hours: WeeklySchedule;
+
+  /**
+   * Estado de la agencia
+   */
+  status: AgencyStatus.ACTIVE | AgencyStatus.INACTIVE;
+}
+
+/**
+ * Interfaz que define la respuesta de las agencias de envío
+ */
+export interface ResponseAgencies {
+  /**
+   * Lista de agencias
+   */
+  agencies: Agency[];
 }

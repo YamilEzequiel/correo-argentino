@@ -4,13 +4,16 @@ import {
   InitializeMiCorreoWithCustomerId,
   ProductDimensions,
   ProductRates,
+  ResponseAgencies,
   ResponseAuthToken,
   ResponseCustomerId,
   ResponseGenerateBasicAuth,
   ResponseRates,
+  ResponseUserRegister,
+  UserRegister,
 } from "../types/interface";
 import { URL_PROD, URL_TEST } from "../setting/enviroment";
-import { Environment } from "../types/enum";
+import { Environment, FunctionMethod, ProvinceCode } from "../types/enum";
 
 export default class CorreoArgentinoApi {
   private api: any;
@@ -112,8 +115,7 @@ export default class CorreoArgentinoApi {
         token: this.token,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Error desconocido";
-      throw new Error(`🔴 Error en generateBasicAuth: ${errorMessage}`);
+      throw this.errorCapture(error, FunctionMethod.generateBasicAuth);
     }
   }
 
@@ -148,9 +150,7 @@ export default class CorreoArgentinoApi {
 
       return data;
     } catch (error: any) {
-      const code = error.response?.data?.code;
-      const message = error.response?.data?.message;
-      throw new Error(`🔑 Error al obtener token: ${code} - ${message}`);
+      throw this.errorCapture(error, FunctionMethod.authToken);
     }
   }
 
@@ -191,9 +191,7 @@ export default class CorreoArgentinoApi {
 
       return data;
     } catch (error: any) {
-      const code = error.response?.data?.code;
-      const message = error.response?.data?.message;
-      throw new Error(`🆔 Error al obtener CustomerId: ${code} - ${message}`);
+      throw this.errorCapture(error, FunctionMethod.userValidate);
     }
   }
 
@@ -261,9 +259,7 @@ export default class CorreoArgentinoApi {
       const { data } = await this.api.post("/rates", payload);
       return data;
     } catch (error: any) {
-      const code = error.response?.data?.code;
-      const message = error.response?.data?.message;
-      throw new Error(`🔴 Error al obtener tarifas: ${code} - ${message}`);
+      throw this.errorCapture(error, FunctionMethod.rates);
     }
   }
 
@@ -289,6 +285,47 @@ export default class CorreoArgentinoApi {
     console.log("🌍 Entorno cambiado a:", url);
 
     console.log("✅ API inicializada correctamente");
+  }
+
+  /**
+   *Registra un nuevo usuario en la plataforma MiCorreo. Hay dos tipos de alta de usuario posibles, consumidor
+   * final o con CUIT, para monotributistas o responsables inscriptos.
+   * @param UserRegister - Datos necesarios para registrar un usuario
+   * @returns {Promise<ResponseUserRegister>}
+   */
+  async userRegister(dataUser: UserRegister): Promise<ResponseUserRegister> {
+    try {
+      const { data } = await this.api.post("/register", dataUser);
+      return data;
+    } catch (error: any) {
+      throw this.errorCapture(error, FunctionMethod.userRegister);
+    }
+  }
+
+  /**
+   * Obtiene las agencias de envío
+   * @param provinceCode - Código de la provincia
+   * @param customerId - CustomerId del usuario de MiCorreo auto
+   * @returns {Promise<ResponseAgencies>}
+   */
+  async getAgencies(provinceCode: ProvinceCode): Promise<ResponseAgencies> {
+    try {
+      const { data } = await this.api.get(`/agencies/provinceCode=${provinceCode}&customerId=${this.customerId}`);
+      return data;
+    } catch (error: any) {
+      throw this.errorCapture(error, FunctionMethod.agencies);
+    }
+  }
+
+  /**
+   * Captura el error y lo lanza con un mensaje de error personalizado
+   * @param error - Error capturado
+   * @param module - Módulo donde se produjo el error
+   * @returns {void}
+   */
+  errorCapture(error: any, module: FunctionMethod): void {
+    const { code, message } = error.response?.data || { code: "Código desconocido", message: "Mensaje desconocido" };
+    throw new Error(`🔴 Error en ${module}: ${code} - ${message}`);
   }
 
   /**

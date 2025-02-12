@@ -4,6 +4,14 @@
 
 Cliente API no oficial para integrar los servicios de Correo Argentino en aplicaciones Node.js.
 
+## Estado de Endpoints
+
+- 🟩 register [POST] - Registro de usuario en MiCorreo
+- 🟩 users/validate [POST] - Validación de usuario existente
+- 🟩 rates [POST] - Cotización de envíos
+- 🟩 agencies [GET] - Consulta de sucursales por provincia
+- 🟨 shipping/import [POST] - Importación de envíos (pendiente)
+
 ## Instalación
 
 ```bash
@@ -14,78 +22,179 @@ npm install ylazzari-correoargentino
 
 ### Obtener Credenciales
 
-Como primer paso, se debe obtener el token de acceso. Este lo deben solicitar a través de un formulario en la página de correo argentino.
-
-- [Documentación oficial](https://www.correoargentino.com.ar/MiCorreo/public/img/pag/apiMiCorreo.pdf)
-- [Web Mi Correo](https://www.correoargentino.com.ar/MiCorreo/public/)
-
-Para solicitar el token, ingrese a la web con su usuario y contraseña y complete el formulario en: [Solicitar token](https://www.correoargentino.com.ar/MiCorreo/public/contact)
+1. Solicitar token de acceso a través del [formulario de Correo Argentino](https://www.correoargentino.com.ar/MiCorreo/public/contact)
+2. Referencias útiles:
+   - [Documentación oficial](https://www.correoargentino.com.ar/MiCorreo/public/img/pag/apiMiCorreo.pdf)
+   - [Web Mi Correo](https://www.correoargentino.com.ar/MiCorreo/public/)
 
 ### URLs de la API
+- TEST: https://apitest.correoargentino.com.ar/micorreo/v1
+- PROD: https://api.correoargentino.com.ar/micorreo/v1
 
-- TEST = https://apitest.correoargentino.com.ar/v1
-- PROD = https://api.correoargentino.com.ar/micorreo/v1
-
-## Uso Básico
-
-Hay dos formas de inicializar la API:
+## Inicialización
 
 ### 1. Inicialización Completa (Recomendada)
+
 Útil cuando no se tiene el customerId previamente:
 
 ```typescript
-import { CorreoArgentinoApi, Environment } from 'correo-argentino-api';
+import { CorreoArgentinoApi, Environment } from "correo-argentino-api";
 
 const correoApi = new CorreoArgentinoApi();
-
 await correoApi.initializeAll({
   userToken: "YOUR_USER_TOKEN",
   passwordToken: "YOUR_PASSWORD_TOKEN",
   email: "your@email.com",
   password: "your_password",
-  environment: Environment.PROD
+  environment: Environment.PROD,
 });
 ```
 
 ### 2. Inicialización con CustomerId
-Para cuando ya se tiene el customerId:
+
+Útil cuando se tiene el customerId previamente:
 
 ```typescript
-import { CorreoArgentinoApi, Environment } from 'correo-argentino-api';
+import { CorreoArgentinoApi, Environment } from "correo-argentino-api";
 
 const correoApi = new CorreoArgentinoApi();
-
 await correoApi.initializeWithCustomerId({
   userToken: "YOUR_USER_TOKEN",
   passwordToken: "YOUR_PASSWORD_TOKEN",
   customerId: "YOUR_CUSTOMER_ID",
-  environment: Environment.PROD
+  environment: Environment.PROD,
 });
 ```
 
-## Obtener Costos de Envío
+## Métodos Disponibles
+
+### 1. Registro de Usuario (register)
 
 ```typescript
+// Parámetros de entrada
+interface UserRegister {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  documentType: DocumentType.DNI | DocumentType.CUIT;
+  documentId: string;
+  phone: string;
+  cellPhone: string;
+  address: Address;
+}
+
+// Respuesta exitosa
+interface ResponseUserRegister {
+  createdAt: string;
+  customerId: string;
+}
+
+// Ejemplo de uso
+const usuario = await correoApi.register({
+  firstName: "Nombre",
+  lastName: "Apellido",
+  email: "email@ejemplo.com",
+  password: "contraseña",
+  documentType: DocumentType.DNI,
+  documentId: "32471960",
+  phone: "1165446544",
+  cellPhone: "1165446544",
+  address: {
+    streetName: "Nombre Calle",
+    streetNumber: "123",
+    floor: "1",
+    apartment: "A",
+    locality: "Localidad",
+    city: "Ciudad",
+    provinceCode: "B",
+    postalCode: "1234"
+  }
+});
+```
+
+### 2. Validación de Usuario (users/validate)
+
+```typescript
+// Respuesta
+interface ResponseCustomerId {
+  customerId: string;
+  createdAt: Date;
+}
+
+// Ejemplo de uso
+const validacion = await correoApi.validateUser();
+```
+
+### 3. Cotización de Envío (rates)
+
+```typescript
+// Parámetros de entrada
+interface ProductRates {
+  customerId: string;
+  postalCodeOrigin: string;
+  postalCodeDestination: string;
+  deliveredType: DeliveredType;
+  dimensions: ProductDimensions[];
+}
+
+interface ProductDimensions {
+  weight: number;    // gramos (máx 25000)
+  height: number;    // cm (máx 150)
+  width: number;     // cm (máx 150)
+  length: number;    // cm (máx 150)
+  quantity?: number;
+}
+
+// Respuesta
+interface ResponseRates {
+  message: string;
+  customerId: string;
+  validTo: Date;
+  rates: Rate[];
+}
+
+// Ejemplo de uso
 const cotizacion = await correoApi.getRates({
-  dimensions: [
-    { 
-      length: 10, 
-      width: 10, 
-      height: 10, 
-      weight: 100, 
-      quantity: 1 
-    }
-  ],
   customerId: correoApi.getVarCustomerId(),
   postalCodeOrigin: "2000",
   postalCodeDestination: "2000",
-  deliveredType: DeliveredType.D
+  deliveredType: DeliveredType.D,
+  dimensions: [{
+    weight: 100,
+    height: 10,
+    width: 10,
+    length: 10,
+    quantity: 1
+  }]
 });
 ```
 
-## Tipos de Datos
+### 4. Consulta de Agencias (agencies)
 
-### Enumeraciones
+```typescript
+// Respuesta
+interface ResponseAgencies {
+  agencies: Agency[];
+}
+
+interface Agency {
+  code: string;
+  name: string;
+  manager: string;
+  email: string;
+  phone: string;
+  services: AgencyServices;
+  location: AgencyLocation;
+  hours: WeeklySchedule;
+  status: AgencyStatus;
+}
+
+// Ejemplo de uso
+const agencias = await correoApi.getAgencies("B"); // Código de provincia
+```
+
+## Enumeraciones
 
 ```typescript
 enum Environment {
@@ -99,50 +208,18 @@ enum DeliveredType {
 }
 
 enum ProductType {
-  CP = "CP",
-  EP = "EP"
-}
-```
-
-### Interfaces Principales
-
-```typescript
-interface ProductDimensions {
-  weight: number;   // Peso en gramos (max 25000)
-  height: number;   // Alto en cm (max 150)
-  width: number;    // Ancho en cm (max 150)
-  length: number;   // Largo en cm (max 150)
-  quantity?: number; // Cantidad de productos
+  CP = "CP", // Paquete
+  EP = "EP"  // Envío de encomienda
 }
 
-interface ProductRates {
-  customerId: string;
-  postalCodeOrigin: string;
-  postalCodeDestination: string;
-  deliveredType: DeliveredType;
-  dimensions: ProductDimensions[];
-}
-```
-
-## Respuestas de la API
-
-### Cotización de Envío
-
-```typescript
-interface ResponseRates {
-  message: string;
-  customerId: string;
-  validTo: Date;
-  rates: Rate[];
+enum DocumentType {
+  DNI = "DNI",
+  CUIT = "CUIT"
 }
 
-interface Rate {
-  deliveredType: DeliveredType;
-  productType: ProductType;
-  productName: string;
-  price: number;
-  deliveryTimeMin: string;
-  deliveryTimeMax: string;
+enum AgencyStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE"
 }
 ```
 
@@ -156,4 +233,4 @@ MIT
 
 ## Autor
 
-[Yamil Lazzari](https://github.com/yamillazzari)
+[Yamil Lazzari](https://github.com/YamilEzequiel)

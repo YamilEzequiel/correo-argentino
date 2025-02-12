@@ -1,6 +1,6 @@
 export enum Environment {
-  PROD = "prod",
-  TEST = "test",
+  PROD = "PROD",
+  TEST = "TEST",
 }
 
 export enum DeliveredType {
@@ -12,3 +12,51 @@ export enum ProductType {
   CP = "CP",
   EP = "EP",
 }
+
+export enum DocumentType {
+  DNI = "DNI",
+  CUIT = "CUIT",
+}
+
+export enum AgencyStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+}
+
+export enum FunctionMethod {
+  generateBasicAuth = "generateBasicAuth",
+  authToken = "authToken",
+  userRegister = "userRegister",
+  userValidate = "userValidate",
+  agencies = "agencies",
+  rates = "rates",
+  shippingImport = "shippingImport",
+}
+
+export enum ProvinceCode {
+  "Salta" = "A",
+  "Provincia de Buenos Aires" = "B",
+  "Ciudad Autónoma de Buenos Aires" = "C",
+  "San Luis" = "D",
+  "Entre Ríos" = "E",
+  "La Rioja" = "F",
+  "Santiago del Estero" = "G",
+  "Chaco" = "H",
+  "San Juan" = "J",
+  "Catamarca" = "K",
+  "La Pampa" = "L",
+  "Mendoza" = "M",
+  "Misiones" = "N",
+  "Formosa" = "P",
+  "Neuquén" = "Q",
+  "Río Negro" = "R",
+  "Santa Fe" = "S",
+  "Tucumán" = "T",
+  "Chubut" = "U",
+  "Tierra del Fuego" = "V",
+  "Corrientes" = "W",
+  "Córdoba" = "X",
+  "Jujuy" = "Y",
+  "Santa Cruz" = "Z",
+}
+
