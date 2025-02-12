@@ -2,8 +2,8 @@
 .env
 
 # Build output
-dist/
-/dist
+# dist/
+# /dist
 
 # Dependencies
 node_modules/

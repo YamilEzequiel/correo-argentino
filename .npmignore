@@ -1,0 +1,10 @@
+src/
+tests/
+.git/
+.github/
+.gitignore
+.npmrc
+.env
+.env.example
+doc/
+*.log 

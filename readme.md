@@ -38,7 +38,7 @@ npm install ylazzari-correoargentino
 Útil cuando no se tiene el customerId previamente:
 
 ```typescript
-import { CorreoArgentinoApi, Environment } from "correo-argentino-api";
+import CorreoArgentinoApi from 'ylazzari-correoargentino';
 
 const correoApi = new CorreoArgentinoApi();
 await correoApi.initializeAll({
