@@ -1,6 +1,6 @@
 {
   "name": "ylazzari-correoargentino",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "API wrapper para el servicio de MiCorreo de Correo Argentino",
   "main": "dist/miCorreo/index.js",
   "module": "dist/miCorreo/index.js",

@@ -7,7 +7,8 @@ Cliente API no oficial para integrar los servicios de Correo Argentino en aplica
 ## Estado de Endpoints
 
 - 🟩 register [POST] - Registro de usuario en MiCorreo
-- 🟩 users/validate [POST] - Validación de usuario existente
+- 🟩 token [POST] - Obtención de token de autenticación
+- 🟩 users/validate [POST] - Validación y obtención de customerId
 - 🟩 rates [POST] - Cotización de envíos
 - 🟩 agencies [GET] - Consulta de sucursales por provincia
 - 🟨 shipping/import [POST] - Importación de envíos (pendiente)
@@ -33,14 +34,15 @@ npm install ylazzari-correoargentino
 
 ## Inicialización
 
+Hay dos formas de inicializar la API:
+
 ### 1. Inicialización Completa (Recomendada)
 
-Útil cuando no se tiene el customerId previamente:
+Para cuando no se tiene el customerId previamente:
 
 ```typescript
 import CorreoArgentinoApi from "ylazzari-correoargentino";
 import { Environment } from "ylazzari-correoargentino/enums";
-import { ResponseAuthToken } from "ylazzari-correoargentino/interfaces";
 
 const correoApi = new CorreoArgentinoApi();
 await correoApi.initializeAll({
@@ -52,27 +54,13 @@ await correoApi.initializeAll({
 });
 ```
 
-Como vimos anteriormente puedes importar enumeraciones y interfaces de la siguiente manera:
-
-```typescript
-import { Environment } from "ylazzari-correoargentino/enums";
-import { ResponseAuthToken } from "ylazzari-correoargentino/interfaces";
-```
-
-Si tienes errores con load modules al ejecutar en js recuerda tener el archivo `package.json` con el siguiente formato:
-
-```json
-{
-  "type": "module"
-}
-```
-
 ### 2. Inicialización con CustomerId
 
-Útil cuando se tiene el customerId previamente:
+Para cuando ya se tiene el customerId:
 
 ```typescript
-import { CorreoArgentinoApi, Environment } from "correo-argentino-api";
+import CorreoArgentinoApi from "ylazzari-correoargentino";
+import { Environment } from "ylazzari-correoargentino/enums";
 
 const correoApi = new CorreoArgentinoApi();
 await correoApi.initializeWithCustomerId({
@@ -88,27 +76,7 @@ await correoApi.initializeWithCustomerId({
 ### 1. Registro de Usuario (register)
 
 ```typescript
-// Parámetros de entrada
-interface UserRegister {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  documentType: DocumentType.DNI | DocumentType.CUIT;
-  documentId: string;
-  phone: string;
-  cellPhone: string;
-  address: Address;
-}
-
-// Respuesta exitosa
-interface ResponseUserRegister {
-  createdAt: string;
-  customerId: string;
-}
-
-// Ejemplo de uso
-const usuario = await correoApi.register({
+const usuario = await correoApi.userRegister({
   firstName: "Nombre",
   lastName: "Apellido",
   email: "email@ejemplo.com",
@@ -130,48 +98,15 @@ const usuario = await correoApi.register({
 });
 ```
 
-### 2. Validación de Usuario (users/validate)
+### 2. Obtención de CustomerId (users/validate)
 
 ```typescript
-// Respuesta
-interface ResponseCustomerId {
-  customerId: string;
-  createdAt: Date;
-}
-
-// Ejemplo de uso
-const validacion = await correoApi.validateUser();
+const customerId = await correoApi.getCustomerId("email@ejemplo.com", "password");
 ```
 
 ### 3. Cotización de Envío (rates)
 
 ```typescript
-// Parámetros de entrada
-interface ProductRates {
-  customerId: string;
-  postalCodeOrigin: string;
-  postalCodeDestination: string;
-  deliveredType: DeliveredType;
-  dimensions: ProductDimensions[];
-}
-
-interface ProductDimensions {
-  weight: number;    // gramos (máx 25000)
-  height: number;    // cm (máx 150)
-  width: number;     // cm (máx 150)
-  length: number;    // cm (máx 150)
-  quantity?: number;
-}
-
-// Respuesta
-interface ResponseRates {
-  message: string;
-  customerId: string;
-  validTo: Date;
-  rates: Rate[];
-}
-
-// Ejemplo de uso
 const cotizacion = await correoApi.getRates({
   customerId: correoApi.getVarCustomerId(),
   postalCodeOrigin: "2000",
@@ -190,11 +125,145 @@ const cotizacion = await correoApi.getRates({
 ### 4. Consulta de Agencias (agencies)
 
 ```typescript
-// Respuesta
-interface ResponseAgencies {
-  agencies: Agency[];
-}
+const agencias = await correoApi.getAgencies(ProvinceCode["Ciudad Autónoma de Buenos Aires"]);
+```
 
+## Getters Disponibles
+
+La API proporciona varios métodos getter para acceder a la información actual:
+
+```typescript
+// Obtener el CustomerId actual
+const customerId = correoApi.getVarCustomerId();
+
+// Obtener el token de autenticación actual
+const token = correoApi.getVarToken();
+
+// Obtener el email configurado
+const email = correoApi.getVarEmail();
+
+// Obtener el password configurado
+const password = correoApi.getVarPassword();
+
+// Obtener el userToken configurado
+const userToken = correoApi.getVarUserToken();
+
+// Obtener el passwordToken configurado
+const passwordToken = correoApi.getVarPasswordToken();
+
+// Obtener el environment actual
+const environment = correoApi.getVarEnvironment();
+```
+
+## Enumeraciones
+
+### Environment
+```typescript
+enum Environment {
+  PROD = "PROD",
+  TEST = "TEST"
+}
+```
+
+### DeliveredType
+```typescript
+enum DeliveredType {
+  D = "D", // Entrega a domicilio
+  S = "S"  // Entrega en sucursal
+}
+```
+
+### ProductType
+```typescript
+enum ProductType {
+  CP = "CP", // Paquete
+  EP = "EP"  // Envío de encomienda
+}
+```
+
+### DocumentType
+```typescript
+enum DocumentType {
+  DNI = "DNI",
+  CUIT = "CUIT"
+}
+```
+
+### AgencyStatus
+```typescript
+enum AgencyStatus {
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE"
+}
+```
+
+### ProvinceCode
+```typescript
+enum ProvinceCode {
+  "Salta" = "A",
+  "Provincia de Buenos Aires" = "B",
+  "Ciudad Autónoma de Buenos Aires" = "C",
+  "San Luis" = "D",
+  "Entre Ríos" = "E",
+  // ... y más provincias
+}
+```
+
+## Interfaces Principales
+
+### ProductDimensions
+```typescript
+interface ProductDimensions {
+  weight: number;    // Peso en gramos (máx 25000)
+  height: number;    // Alto en cm (máx 150)
+  width: number;     // Ancho en cm (máx 150)
+  length: number;    // Largo en cm (máx 150)
+  quantity?: number; // Cantidad de productos
+}
+```
+
+### Address
+```typescript
+interface Address {
+  streetName: string;    // Nombre de la calle
+  streetNumber: string;  // Número
+  floor: string;         // Piso
+  apartment: string;     // Departamento
+  locality: string;      // Localidad
+  city: string;         // Ciudad
+  provinceCode: string; // Código de provincia
+  postalCode: string;   // Código postal
+}
+```
+
+### UserRegister
+```typescript
+interface UserRegister {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  documentType: DocumentType;
+  documentId: string;
+  phone: string;
+  cellPhone: string;
+  address: Address;
+}
+```
+
+### ProductRates
+```typescript
+interface ProductRates {
+  customerId: string;
+  postalCodeOrigin: string;
+  postalCodeDestination: string;
+  deliveredType: DeliveredType;
+  dimensions: ProductDimensions[];
+}
+```
+
+### Agency
+```typescript
 interface Agency {
   code: string;
   name: string;
@@ -206,37 +275,27 @@ interface Agency {
   hours: WeeklySchedule;
   status: AgencyStatus;
 }
-
-// Ejemplo de uso
-const agencias = await correoApi.getAgencies("B"); // Código de provincia
 ```
 
-## Enumeraciones
-
+### ResponseRates
 ```typescript
-enum Environment {
-  PROD = "prod",
-  TEST = "test"
+interface ResponseRates {
+  message: string;
+  customerId: string;
+  validTo: Date;
+  rates: Rate[];
 }
+```
 
-enum DeliveredType {
-  D = "D", // Entrega a domicilio
-  S = "S"  // Entrega en sucursal
-}
-
-enum ProductType {
-  CP = "CP", // Paquete
-  EP = "EP"  // Envío de encomienda
-}
-
-enum DocumentType {
-  DNI = "DNI",
-  CUIT = "CUIT"
-}
-
-enum AgencyStatus {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE"
+### Rate
+```typescript
+interface Rate {
+  deliveredType: DeliveredType;
+  productType: ProductType;
+  productName: string;
+  price: number;
+  deliveryTimeMin: string;
+  deliveryTimeMax: string;
 }
 ```
 
