@@ -1,5 +1,7 @@
 import axios from "axios";
-import {
+import { URL_PROD, URL_TEST } from "../setting/enviroment";
+import { Environment, FunctionMethod, ProvinceCode } from "../types/enum";
+import type {
   InitializeMiCorreo,
   InitializeMiCorreoWithCustomerId,
   ProductDimensions,
@@ -11,9 +13,7 @@ import {
   ResponseRates,
   ResponseUserRegister,
   UserRegister,
-} from "../types/interface.js";
-import { URL_PROD, URL_TEST } from "../setting/enviroment.js";
-import { Environment, FunctionMethod, ProvinceCode } from "../types/enum.js";
+} from "../types/interface";
 
 export default class CorreoArgentinoApi {
   private api: any;
@@ -384,3 +384,5 @@ export default class CorreoArgentinoApi {
     return this.environment;
   }
 }
+
+export { CorreoArgentinoApi };

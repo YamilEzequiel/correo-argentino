@@ -1,5 +1,5 @@
-import { DeliveredType, DocumentType, Environment, ProvinceCode } from "../types/enum";
-import { InitializeMiCorreoWithCustomerId, ProductRates, UserRegister } from "../types/interface";
+import { DeliveredType, DocumentType, Environment, ProvinceCode } from "@/types/enum";
+import { InitializeMiCorreoWithCustomerId, ProductRates, UserRegister } from "@/types/interface";
 import CorreoArgentinoApi from "./index";
 import dotenv from "dotenv";
 dotenv.config();

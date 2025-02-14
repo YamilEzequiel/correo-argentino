@@ -1,8 +1,10 @@
 # Correo Argentino API Client
 
-> ⚠️ **AVISO**: Esta librería está en desarrollo activo y aún no está finalizada. Algunas funcionalidades podrían cambiar o estar incompletas. 
+> ⚠️ **AVISO**: Esta librería está en desarrollo activo y aún no está finalizada. Algunas funcionalidades podrían cambiar o estar incompletas.
 
 Cliente API no oficial para integrar los servicios de Correo Argentino en aplicaciones Node.js.
+
+[![Downloads](https://img.shields.io/npm/dt/ylazzari-correoargentino.svg)](http://npmjs.com/package/ylazzari-correoargentino)
 
 ## Estado de Endpoints
 
@@ -29,8 +31,41 @@ npm install ylazzari-correoargentino
    - [Web Mi Correo](https://www.correoargentino.com.ar/MiCorreo/public/)
 
 ### URLs de la API
+
 - TEST: https://apitest.correoargentino.com.ar/micorreo/v1
 - PROD: https://api.correoargentino.com.ar/micorreo/v1
+
+
+## Importación
+
+El paquete soporta tanto ESM como CommonJS. Puedes importarlo de las siguientes maneras:
+
+### Para JavaScript/TypeScript (ESM)
+```typescript
+import { CorreoArgentinoApi } from "ylazzari-correoargentino";
+import { Environment } from "ylazzari-correoargentino/enums";
+```
+
+### Para NestJS o CommonJS
+```typescript
+import CorreoArgentinoApi from "ylazzari-correoargentino";
+import { Environment } from "ylazzari-correoargentino/enums";
+```
+
+## Uso
+
+```typescript
+const correoApi = new CorreoArgentinoApi();
+
+// Inicialización
+await correoApi.initializeAll({
+  userToken: "YOUR_USER_TOKEN",
+  passwordToken: "YOUR_PASSWORD_TOKEN",
+  email: "your@email.com",
+  password: "your_password",
+  environment: Environment.PROD,
+});
+``` 
 
 ## Inicialización
 
@@ -44,9 +79,6 @@ Para cuando no se tiene el customerId previamente:
 import CorreoArgentinoApi from "ylazzari-correoargentino";
 import { Environment } from "ylazzari-correoargentino/enums";
 
-// Opcional
-import { Environment } from 'ylazzari-correoargentino/dist/types/enum';
-
 const correoApi = new CorreoArgentinoApi();
 await correoApi.initializeAll({
   userToken: "YOUR_USER_TOKEN",
@@ -56,6 +88,8 @@ await correoApi.initializeAll({
   environment: Environment.PROD,
 });
 ```
+
+
 
 ### 2. Inicialización con CustomerId
 
@@ -96,8 +130,8 @@ const usuario = await correoApi.userRegister({
     locality: "Localidad",
     city: "Ciudad",
     provinceCode: "B",
-    postalCode: "1234"
-  }
+    postalCode: "1234",
+  },
 });
 ```
 
@@ -115,13 +149,15 @@ const cotizacion = await correoApi.getRates({
   postalCodeOrigin: "2000",
   postalCodeDestination: "2000",
   deliveredType: DeliveredType.D,
-  dimensions: [{
-    weight: 100,
-    height: 10,
-    width: 10,
-    length: 10,
-    quantity: 1
-  }]
+  dimensions: [
+    {
+      weight: 100,
+      height: 10,
+      width: 10,
+      length: 10,
+      quantity: 1,
+    },
+  ],
 });
 ```
 
@@ -161,46 +197,52 @@ const environment = correoApi.getVarEnvironment();
 ## Enumeraciones
 
 ### Environment
+
 ```typescript
 enum Environment {
   PROD = "PROD",
-  TEST = "TEST"
+  TEST = "TEST",
 }
 ```
 
 ### DeliveredType
+
 ```typescript
 enum DeliveredType {
   D = "D", // Entrega a domicilio
-  S = "S"  // Entrega en sucursal
+  S = "S", // Entrega en sucursal
 }
 ```
 
 ### ProductType
+
 ```typescript
 enum ProductType {
   CP = "CP", // Paquete
-  EP = "EP"  // Envío de encomienda
+  EP = "EP", // Envío de encomienda
 }
 ```
 
 ### DocumentType
+
 ```typescript
 enum DocumentType {
   DNI = "DNI",
-  CUIT = "CUIT"
+  CUIT = "CUIT",
 }
 ```
 
 ### AgencyStatus
+
 ```typescript
 enum AgencyStatus {
   ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE"
+  INACTIVE = "INACTIVE",
 }
 ```
 
 ### ProvinceCode
+
 ```typescript
 enum ProvinceCode {
   "Salta" = "A",
@@ -215,31 +257,34 @@ enum ProvinceCode {
 ## Interfaces Principales
 
 ### ProductDimensions
+
 ```typescript
 interface ProductDimensions {
-  weight: number;    // Peso en gramos (máx 25000)
-  height: number;    // Alto en cm (máx 150)
-  width: number;     // Ancho en cm (máx 150)
-  length: number;    // Largo en cm (máx 150)
+  weight: number; // Peso en gramos (máx 25000)
+  height: number; // Alto en cm (máx 150)
+  width: number; // Ancho en cm (máx 150)
+  length: number; // Largo en cm (máx 150)
   quantity?: number; // Cantidad de productos
 }
 ```
 
 ### Address
+
 ```typescript
 interface Address {
-  streetName: string;    // Nombre de la calle
-  streetNumber: string;  // Número
-  floor: string;         // Piso
-  apartment: string;     // Departamento
-  locality: string;      // Localidad
-  city: string;         // Ciudad
+  streetName: string; // Nombre de la calle
+  streetNumber: string; // Número
+  floor: string; // Piso
+  apartment: string; // Departamento
+  locality: string; // Localidad
+  city: string; // Ciudad
   provinceCode: string; // Código de provincia
-  postalCode: string;   // Código postal
+  postalCode: string; // Código postal
 }
 ```
 
 ### UserRegister
+
 ```typescript
 interface UserRegister {
   firstName: string;
@@ -255,6 +300,7 @@ interface UserRegister {
 ```
 
 ### ProductRates
+
 ```typescript
 interface ProductRates {
   customerId: string;
@@ -266,6 +312,7 @@ interface ProductRates {
 ```
 
 ### Agency
+
 ```typescript
 interface Agency {
   code: string;
@@ -281,6 +328,7 @@ interface Agency {
 ```
 
 ### ResponseRates
+
 ```typescript
 interface ResponseRates {
   message: string;
@@ -291,6 +339,7 @@ interface ResponseRates {
 ```
 
 ### Rate
+
 ```typescript
 interface Rate {
   deliveredType: DeliveredType;
