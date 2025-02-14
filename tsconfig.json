@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "esnext",
+    "module": "commonjs", 
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "./dist",
@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true 
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

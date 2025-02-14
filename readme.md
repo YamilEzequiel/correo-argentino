@@ -44,6 +44,9 @@ Para cuando no se tiene el customerId previamente:
 import CorreoArgentinoApi from "ylazzari-correoargentino";
 import { Environment } from "ylazzari-correoargentino/enums";
 
+// Opcional
+import { Environment } from 'ylazzari-correoargentino/dist/types/enum';
+
 const correoApi = new CorreoArgentinoApi();
 await correoApi.initializeAll({
   userToken: "YOUR_USER_TOKEN",

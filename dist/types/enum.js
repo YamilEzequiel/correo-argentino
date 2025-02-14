@@ -1,29 +1,32 @@
-export var Environment;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProvinceCode = exports.FunctionMethod = exports.AgencyStatus = exports.DocumentType = exports.ProductType = exports.DeliveredType = exports.Environment = void 0;
+var Environment;
 (function (Environment) {
     Environment["PROD"] = "PROD";
     Environment["TEST"] = "TEST";
-})(Environment || (Environment = {}));
-export var DeliveredType;
+})(Environment || (exports.Environment = Environment = {}));
+var DeliveredType;
 (function (DeliveredType) {
     DeliveredType["D"] = "D";
     DeliveredType["S"] = "S";
-})(DeliveredType || (DeliveredType = {}));
-export var ProductType;
+})(DeliveredType || (exports.DeliveredType = DeliveredType = {}));
+var ProductType;
 (function (ProductType) {
     ProductType["CP"] = "CP";
     ProductType["EP"] = "EP";
-})(ProductType || (ProductType = {}));
-export var DocumentType;
+})(ProductType || (exports.ProductType = ProductType = {}));
+var DocumentType;
 (function (DocumentType) {
     DocumentType["DNI"] = "DNI";
     DocumentType["CUIT"] = "CUIT";
-})(DocumentType || (DocumentType = {}));
-export var AgencyStatus;
+})(DocumentType || (exports.DocumentType = DocumentType = {}));
+var AgencyStatus;
 (function (AgencyStatus) {
     AgencyStatus["ACTIVE"] = "ACTIVE";
     AgencyStatus["INACTIVE"] = "INACTIVE";
-})(AgencyStatus || (AgencyStatus = {}));
-export var FunctionMethod;
+})(AgencyStatus || (exports.AgencyStatus = AgencyStatus = {}));
+var FunctionMethod;
 (function (FunctionMethod) {
     FunctionMethod["generateBasicAuth"] = "generateBasicAuth";
     FunctionMethod["authToken"] = "authToken";
@@ -32,8 +35,8 @@ export var FunctionMethod;
     FunctionMethod["agencies"] = "agencies";
     FunctionMethod["rates"] = "rates";
     FunctionMethod["shippingImport"] = "shippingImport";
-})(FunctionMethod || (FunctionMethod = {}));
-export var ProvinceCode;
+})(FunctionMethod || (exports.FunctionMethod = FunctionMethod = {}));
+var ProvinceCode;
 (function (ProvinceCode) {
     ProvinceCode["Salta"] = "A";
     ProvinceCode["Provincia de Buenos Aires"] = "B";
@@ -59,4 +62,4 @@ export var ProvinceCode;
     ProvinceCode["C\u00F3rdoba"] = "X";
     ProvinceCode["Jujuy"] = "Y";
     ProvinceCode["Santa Cruz"] = "Z";
-})(ProvinceCode || (ProvinceCode = {}));
+})(ProvinceCode || (exports.ProvinceCode = ProvinceCode = {}));
