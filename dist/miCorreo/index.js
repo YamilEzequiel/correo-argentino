@@ -7,24 +7,53 @@ exports.CorreoArgentinoApi = void 0;
 const axios_1 = __importDefault(require("axios"));
 const enviroment_1 = require("../setting/enviroment");
 const enum_1 = require("../types/enum");
+/**
+ * Wrapper de la API de MiCorreo (Correo Argentino).
+ *
+ * Permite cotizar envíos, registrar usuarios, listar sucursales, y crear
+ * órdenes de envío contra la plataforma MiCorreo. Maneja internamente la
+ * autenticación HTTP Basic + JWT requerida por la API.
+ *
+ * @example Inicialización con email/password (sin customerId previo)
+ * ```ts
+ * import CorreoArgentinoApi from "ylazzari-correoargentino";
+ * import { Environment } from "ylazzari-correoargentino/enums";
+ *
+ * const api = new CorreoArgentinoApi();
+ * await api.initializeAll({
+ *   userToken: process.env.USER_TOKEN!,
+ *   passwordToken: process.env.PASSWORD_TOKEN!,
+ *   email: process.env.EMAIL!,
+ *   password: process.env.PASSWORD!,
+ *   environment: Environment.TEST,
+ * });
+ * ```
+ *
+ * @example Inicialización con customerId ya conocido
+ * ```ts
+ * const api = new CorreoArgentinoApi();
+ * await api.initializeWithCustomerId({
+ *   userToken: process.env.USER_TOKEN!,
+ *   passwordToken: process.env.PASSWORD_TOKEN!,
+ *   customerId: "0090000025",
+ *   environment: Environment.PROD,
+ * });
+ * ```
+ */
 class CorreoArgentinoApi {
     /**
-     * Constructor de la clase CorreoArgentinoApi
-     * @returns {void}
+     * Crea una nueva instancia del wrapper.
+     *
+     * @param options - Configuración opcional.
+     * @param options.debug - Si es `true`, imprime logs informativos. Default: `false`.
+     *
+     * @remarks
+     * El constructor NO realiza ninguna llamada de red. Hay que llamar
+     * `initializeAll` o `initializeWithCustomerId` antes de usar el resto de
+     * métodos.
      */
-    constructor() {
-        /**
-         * Inicializa las variables necesarias para la API
-         * @type {string}
-         * @default ""
-         * @example
-         * this.userToken = ""; // Token de usuario de MiCorreo
-         * this.passwordToken = ""; // Token de contraseña de MiCorreo
-         * this.email = ""; // Email del usuario de MiCorreo
-         * this.password = ""; // Password del usuario de MiCorreo
-         * this.customerId = ""; // CustomerId del usuario de MiCorreo (Opcional) obtenido en el método getCustomerId
-         * this.token = ""; // Token de autenticación de MiCorreo obtenido en el método authToken
-         */
+    constructor(options = {}) {
+        var _a;
         this.userToken = "";
         this.passwordToken = "";
         this.email = "";
@@ -32,12 +61,16 @@ class CorreoArgentinoApi {
         this.customerId = "";
         this.token = "";
         this.environment = enum_1.Environment.PROD;
+        this.debug = (_a = options.debug) !== null && _a !== void 0 ? _a : false;
     }
     /**
-     * Inicializa la API sin CustomerId este se obtiene en el método getCustomerId
-     * Por lo cual debes enviar email y password del usuario de MiCorreo
-     * @param {InitializeMiCorreo} data - Datos necesarios para inicializar la API
-     * @returns {Promise<void>}
+     * Inicializa la API obteniendo el `customerId` a partir de email + password.
+     *
+     * Flujo: setea ambiente → POST /token (Basic auth) → POST /users/validate (Bearer).
+     *
+     * @param data - Credenciales y ambiente.
+     * @throws Si falta cualquiera de los 4 campos requeridos, o si la
+     *   autenticación contra MiCorreo falla.
      */
     async initializeAll(data) {
         const { userToken, passwordToken, email, password, environment } = data;
@@ -52,14 +85,18 @@ class CorreoArgentinoApi {
         await this.generateBasicAuth(true);
     }
     /**
-     * Inicializa la API con un CustomerId ya existente
-     * @param data - Datos necesarios para inicializar la API
-     * @returns {Promise<void>}
+     * Inicializa la API con un `customerId` ya existente.
+     *
+     * Flujo: setea ambiente → POST /token (Basic auth). NO se llama a
+     * `/users/validate` porque el customerId ya está disponible.
+     *
+     * @param data - userToken, passwordToken, customerId y ambiente.
+     * @throws Si falta userToken, passwordToken o customerId, o si /token falla.
      */
     async initializeWithCustomerId(data) {
         const { userToken, passwordToken, customerId, environment } = data;
         if (!userToken || !passwordToken || !customerId) {
-            throw new Error(" UserToken, PasswordToken y CustomerId son requeridos");
+            throw new Error("UserToken, PasswordToken y CustomerId son requeridos");
         }
         this.userToken = userToken;
         this.passwordToken = passwordToken;
@@ -68,9 +105,9 @@ class CorreoArgentinoApi {
         await this.generateBasicAuth(false);
     }
     /**
-     * Genera el token de autenticación y obtiene el CustomerId si es necesario
-     * @param needCustomerId - Indica si se necesita obtener el CustomerId
-     * @returns {Promise<{ message: string; customerId: string }>}
+     * Genera el token JWT y, opcionalmente, recupera el customerId.
+     *
+     * @param needCustomerId - Si es `true`, llama a /users/validate luego de /token.
      */
     async generateBasicAuth(needCustomerId = false) {
         try {
@@ -88,12 +125,17 @@ class CorreoArgentinoApi {
             };
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.generateBasicAuth);
+            this.errorCapture(error, enum_1.FunctionMethod.generateBasicAuth);
         }
     }
     /**
-     * Obtiene el token de autenticación para la API mediante el userToken y passwordToken
-     * @returns {Promise<ResponseAuthToken>}
+     * POST /token — obtiene el JWT para autenticar las siguientes llamadas.
+     *
+     * @remarks
+     * El header `Authorization: Basic <base64>` ya está configurado en `this.api`
+     * por `setEnvironment`. Tras obtener el JWT, se actualiza el header default
+     * de la instancia axios a `Authorization: Bearer <jwt>` para que todas las
+     * llamadas siguientes lo usen automáticamente.
      */
     async authToken() {
         try {
@@ -102,119 +144,103 @@ class CorreoArgentinoApi {
                 throw new Error("Token no disponible en la respuesta");
             }
             this.token = data.token;
-            console.log("🔑 Token obtenido correctamente:", this.token);
-            // Actualizamos los headers para todas las llamadas futuras
+            this.log("🔑 Token obtenido correctamente");
+            // Reemplaza el Basic auth por el Bearer en todas las requests siguientes.
             this.api.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
-            // Recreamos la instancia de axios con los nuevos headers
-            const basicAuth = Buffer.from(`${this.userToken}:${this.passwordToken}`).toString("base64");
-            this.api = axios_1.default.create({
-                baseURL: this.environment === enum_1.Environment.PROD ? enviroment_1.URL_PROD : enviroment_1.URL_TEST,
-                headers: {
-                    Authorization: `Bearer ${this.token}`,
-                    Basic: basicAuth,
-                    "Content-Type": "application/json",
-                },
-            });
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.authToken);
+            this.errorCapture(error, enum_1.FunctionMethod.authToken);
         }
     }
     /**
-     * Obtiene el CustomerId
-     * @param email - Email del usuario de MiCorreo
-     * @param password - Password del usuario de MiCorreo
-     * @returns {Promise<ResponseCustomerId>}
+     * POST /users/validate — valida credenciales y devuelve el customerId.
+     *
+     * @param email - Email registrado en MiCorreo.
+     * @param password - Password del usuario.
+     * @returns El customerId + fecha de creación del usuario.
+     * @throws Si el token JWT no está disponible, o si el server rechaza las credenciales.
+     *
+     * @remarks
+     * Se invoca automáticamente desde `initializeAll`. Llamarlo manualmente solo
+     * tiene sentido si querés re-validar credenciales o cambiar de usuario sin
+     * recrear la instancia.
      */
     async getCustomerId(email, password) {
         try {
             if (!this.token) {
-                throw new Error("Token no disponible");
+                throw new Error("Token no disponible. Llamá initializeAll o initializeWithCustomerId primero.");
             }
-            // Aseguramos que los headers estén correctamente configurados
-            const basicAuth = Buffer.from(`${this.userToken}:${this.passwordToken}`).toString("base64");
-            const headers = {
-                Authorization: `Bearer ${this.token}`,
-                Basic: basicAuth,
-                "Content-Type": "application/json",
-            };
-            const dataSend = {
-                email,
-                password,
-            };
-            const { data } = await this.api.post(`/users/validate`, dataSend, { headers });
+            const { data } = await this.api.post(`/users/validate`, { email, password });
             this.customerId = data.customerId;
             if (!this.customerId) {
                 throw new Error("CustomerId no disponible en la respuesta");
             }
-            console.log("🆔 CustomerId generado correctamente");
+            this.log("🆔 CustomerId obtenido correctamente");
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.userValidate);
+            this.errorCapture(error, enum_1.FunctionMethod.userValidate);
         }
     }
     /**
-     * Obtiene las tarifas de envío
-     * @param ProductRates - Datos necesarios para obtener las tarifas de envío
-     * @returns {Promise<ResponseRates>}
+     * POST /rates — cotiza un envío.
+     *
+     * Recibe un array de productos con sus dimensiones individuales y
+     * arma un payload con dimensiones agregadas (peso total, contenedor que los
+     * apila verticalmente). Si no se pasa `deliveredType`, MiCorreo devuelve
+     * cotización para entrega a domicilio Y a sucursal en `rates`.
+     *
+     * @param data - Datos de la cotización (origen, destino, productos).
+     * @returns Las tarifas disponibles + fecha de validez.
+     *
+     * @remarks
+     * **Cálculo de dimensiones del contenedor:**
+     * - `weight`: suma de `weight * quantity` de todos los items.
+     * - `length`: máximo entre el largo de cada item por su cantidad.
+     * - `width`: máximo entre el ancho de los items (sin multiplicar por cantidad).
+     * - `height`: suma de `height * quantity` (los items se apilan verticalmente).
+     *
+     * Si necesitás otro modelo de empaquetado, calculá las dimensiones en tu
+     * código y pasá un solo `ProductDimensions` con los valores finales.
+     *
+     * MiCorreo rechaza dimensiones superiores a 150cm en cualquier eje, o peso
+     * superior a 25000g.
+     *
+     * Si no pasás `customerId` en `data`, se usa el del estado interno
+     * (obtenido en la inicialización).
      */
     async getRates(data) {
-        /**
-         * Calcula el peso total de todos los items considerando su cantidad
-         * @param data.dimensions - Array de dimensiones de productos
-         * @returns {number} Peso total en gramos
-         * @example
-         * Para un array con un item de 500g y cantidad 2
-         * El resultado será 1000g (500g * 2)
-         */
-        /**
-         * Calcula las dimensiones máximas de la caja que contiene los productos
-         * @param data.dimensions - Array de dimensiones de productos
-         * @returns {Object} Dimensiones máximas de la caja
-         * @example
-         * Para un array con un item de 50x30x20cm y cantidad 2
-         * El resultado será { length: 100, width: 60, height: 40 }
-         */
         const totalWeight = data.dimensions.reduce((sum, item) => sum + item.weight * (item.quantity || 1), 0);
-        /**
-         * Si no se envía el largo, ancho y alto, se toma el largo, ancho y alto del primer item
-         * o se toma 1cm, 1cm y 1cm respectivamente
-         * Si no se envía el peso, se toma 1gr
-         * Si envias dimenciones superiores a 150cm el sistema no acepta el envío y genera un error
-         */
-        const containerDimensions = data.dimensions.reduce((acc, item) => {
-            return {
-                length: Math.max(acc.length, item.length * (item.quantity || 1)),
-                width: Math.max(acc.width, item.width || 1),
-                height: acc.height + item.height * (item.quantity || 1),
-            };
-        }, { length: 1, width: 1, height: 1 });
-        /**
-         * Se envía el peso total, el largo, ancho y alto de la caja que contiene los productos
-         * Si no se envía el peso, se toma 1gr
-         * Si envias dimenciones superiores a 150cm el sistema no acepta el envío y genera un error
-         */
-        const payload = Object.assign(Object.assign({}, data), { dimensions: {
+        const containerDimensions = data.dimensions.reduce((acc, item) => ({
+            length: Math.max(acc.length, item.length * (item.quantity || 1)),
+            width: Math.max(acc.width, item.width || 1),
+            height: acc.height + item.height * (item.quantity || 1),
+        }), { length: 1, width: 1, height: 1 });
+        const payload = Object.assign(Object.assign({}, data), { customerId: data.customerId || this.customerId, dimensions: {
                 weight: totalWeight || 1,
                 length: containerDimensions.length || 1,
                 width: containerDimensions.width || 1,
                 height: containerDimensions.height || 1,
             } });
-        console.log("🔍 Payload:", payload);
+        this.log("🔍 Payload getRates:", payload);
         try {
-            const { data } = await this.api.post("/rates", payload);
-            return data;
+            const { data: response } = await this.api.post("/rates", payload);
+            return response;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.rates);
+            this.errorCapture(error, enum_1.FunctionMethod.rates);
         }
     }
     /**
-     * Cambia el entorno de la API
-     * @param environment - Entorno a cambiar
-     * @returns {void}
+     * Configura el ambiente (PROD o TEST) y recrea la instancia axios.
+     *
+     * @param environment - `Environment.PROD` o `Environment.TEST`.
+     *
+     * @remarks
+     * Se invoca automáticamente desde `initializeAll` / `initializeWithCustomerId`.
+     * Llamarlo manualmente luego de inicializar resetea el JWT — vas a tener
+     * que re-inicializar antes de hacer más llamadas.
      */
     setEnvironment(environment) {
         this.environment = environment;
@@ -227,14 +253,22 @@ class CorreoArgentinoApi {
                 "Content-Type": "application/json",
             },
         });
-        console.log("🌍 Entorno cambiado a:", url);
-        console.log("✅ API inicializada correctamente");
+        this.log("🌍 Ambiente configurado:", url);
     }
     /**
-     *Registra un nuevo usuario en la plataforma MiCorreo. Hay dos tipos de alta de usuario posibles, consumidor
-     * final o con CUIT, para monotributistas o responsables inscriptos.
-     * @param UserRegister - Datos necesarios para registrar un usuario
-     * @returns {Promise<ResponseUserRegister>}
+     * POST /register — registra un nuevo usuario en MiCorreo.
+     *
+     * Soporta dos modos de alta:
+     * - **Consumidor final** (`documentType: "DNI"`): todos los campos de `address` son obligatorios.
+     * - **Empresa / monotributista** (`documentType: "CUIT"`): solo `address` parcial.
+     *
+     * @param dataUser - Datos del usuario a registrar.
+     * @returns customerId y fecha de creación.
+     *
+     * @remarks
+     * MiCorreo NO valida que el email exista o sea real — la validación es
+     * responsabilidad del consumer. Si el email ya existe en MiCorreo, el server
+     * devuelve `402 "Email existente"`.
      */
     async userRegister(dataUser) {
         try {
@@ -242,80 +276,148 @@ class CorreoArgentinoApi {
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.userRegister);
+            this.errorCapture(error, enum_1.FunctionMethod.userRegister);
         }
     }
     /**
-     * Obtiene las agencias de envío
-     * @param provinceCode - Código de la provincia
-     * @param customerId - CustomerId del usuario de MiCorreo auto
-     * @returns {Promise<ResponseAgencies>}
+     * GET /agencies — devuelve las sucursales de una provincia.
+     *
+     * @param provinceCode - Código de provincia (1 letra). Ver enum `ProvinceCode`.
+     * @returns Array de agencias con código, dirección, horarios y servicios disponibles.
+     *
+     * @remarks
+     * El customerId usado en la query es el del estado interno de la instancia.
+     * Si no inicializaste con un customerId válido, el server devuelve
+     * `402 "Customer ID no valido"`.
      */
     async getAgencies(provinceCode) {
         try {
-            const { data } = await this.api.get(`/agencies/provinceCode=${provinceCode}&customerId=${this.customerId}`);
+            const { data } = await this.api.get(`/agencies?provinceCode=${provinceCode}&customerId=${this.customerId}`);
             return data;
         }
         catch (error) {
-            throw this.errorCapture(error, enum_1.FunctionMethod.agencies);
+            this.errorCapture(error, enum_1.FunctionMethod.agencies);
         }
     }
     /**
-     * Captura el error y lo lanza con un mensaje de error personalizado
-     * @param error - Error capturado
-     * @param module - Módulo donde se produjo el error
-     * @returns {void}
+     * POST /shipping/import — crea (importa) un envío en MiCorreo.
+     *
+     * Este es el endpoint que cierra el flujo de operación: cotizás con
+     * `getRates`, decidís un producto, y creás la orden con este método.
+     *
+     * @param data - Datos del envío. Ver {@link ShippingImport}.
+     * @returns `{ createdAt }` con la fecha de creación del envío en MiCorreo.
+     *
+     * @remarks
+     * **Validaciones client-side aplicadas:**
+     * - `customerId`, `extOrderId`, `recipient.name`, `recipient.email`,
+     *   `shipping.deliveryType` son obligatorios.
+     * - Si `deliveryType === "S"`: `shipping.agency` es obligatorio (código de sucursal).
+     * - Si `deliveryType === "D"`: `shipping.address` con todos sus campos clave es obligatorio.
+     *
+     * **Idempotencia:** `extOrderId` debe ser único. MiCorreo rechaza con
+     * `"La orden ya fue importada con anterioridad"` si lo repetís.
+     *
+     * **Sender opcional:** si no pasás `sender`, MiCorreo usa el perfil del
+     * customerId. Pasalo solo si necesitás overridear el remitente para un envío puntual.
+     */
+    async shippingImport(data) {
+        if (!data.customerId) {
+            throw new Error("customerId es requerido");
+        }
+        if (!data.extOrderId) {
+            throw new Error("extOrderId es requerido");
+        }
+        if (!data.recipient || !data.recipient.name || !data.recipient.email) {
+            throw new Error("recipient.name y recipient.email son requeridos");
+        }
+        if (!data.shipping || !data.shipping.deliveryType) {
+            throw new Error("shipping.deliveryType es requerido");
+        }
+        if (data.shipping.deliveryType === enum_1.DeliveredType.S && !data.shipping.agency) {
+            throw new Error("shipping.agency es requerido cuando deliveryType es 'S' (envío a sucursal)");
+        }
+        if (data.shipping.deliveryType === enum_1.DeliveredType.D) {
+            const addr = data.shipping.address;
+            if (!addr || !addr.streetName || !addr.streetNumber || !addr.city || !addr.provinceCode || !addr.postalCode) {
+                throw new Error("shipping.address (streetName, streetNumber, city, provinceCode, postalCode) es requerida cuando deliveryType es 'D' (envío a domicilio)");
+            }
+        }
+        try {
+            const { data: response } = await this.api.post("/shipping/import", data);
+            return response;
+        }
+        catch (error) {
+            this.errorCapture(error, enum_1.FunctionMethod.shippingImport);
+        }
+    }
+    /**
+     * Normaliza el error recibido del server y lo re-lanza como `Error` legible.
+     *
+     * Tipado como `never` para que TypeScript entienda que esta función nunca
+     * retorna — el callsite puede dejar el try/catch sin `return` explícito.
+     *
+     * @internal
      */
     errorCapture(error, module) {
-        var _a;
-        const { code, message } = ((_a = error.response) === null || _a === void 0 ? void 0 : _a.data) || { code: "Código desconocido", message: "Mensaje desconocido" };
+        var _a, _b, _c, _d, _e;
+        const err = error;
+        const responseData = (_a = err === null || err === void 0 ? void 0 : err.response) === null || _a === void 0 ? void 0 : _a.data;
+        const code = (_c = (_b = responseData === null || responseData === void 0 ? void 0 : responseData.code) !== null && _b !== void 0 ? _b : err === null || err === void 0 ? void 0 : err.code) !== null && _c !== void 0 ? _c : "Código desconocido";
+        const message = (_e = (_d = responseData === null || responseData === void 0 ? void 0 : responseData.message) !== null && _d !== void 0 ? _d : err === null || err === void 0 ? void 0 : err.message) !== null && _e !== void 0 ? _e : "Mensaje desconocido";
         throw new Error(`🔴 Error en ${module}: ${code} - ${message}`);
     }
     /**
-     * Obtiene el CustomerId
-     * @returns {string} CustomerId
+     * Log condicional: solo imprime si el flag `debug` está activo.
+     * @internal
+     */
+    log(...args) {
+        if (this.debug) {
+            // eslint-disable-next-line no-console
+            console.log(...args);
+        }
+    }
+    /**
+     * @returns El customerId actualmente cargado en la instancia.
      */
     getVarCustomerId() {
         return this.customerId;
     }
     /**
-     * Obtiene el token de autenticación
-     * @returns {string} Token
+     * @returns El JWT actualmente cargado en la instancia.
+     * @remarks Cuidado al exponerlo: el JWT habilita TODA la cuenta MiCorreo.
      */
     getVarToken() {
         return this.token;
     }
     /**
-     * Obtiene el email del usuario de MiCorreo
-     * @returns {string} Email
+     * @returns El email con el que se inicializó la instancia.
      */
     getVarEmail() {
         return this.email;
     }
     /**
-     * Obtiene el password del usuario de MiCorreo
-     * @returns {string} Password
+     * @returns El password con el que se inicializó la instancia.
+     * @deprecated Devuelve la contraseña en texto plano. Evitá usar este getter;
+     *   guardalo en tu propio gestor de secretos en lugar de leerlo desde acá.
      */
     getVarPassword() {
         return this.password;
     }
     /**
-     * Obtiene el userToken
-     * @returns {string} UserToken
+     * @returns El userToken con el que se inicializó la instancia.
      */
     getVarUserToken() {
         return this.userToken;
     }
     /**
-     * Obtiene el passwordToken
-     * @returns {string} PasswordToken
+     * @returns El passwordToken con el que se inicializó la instancia.
      */
     getVarPasswordToken() {
         return this.passwordToken;
     }
     /**
-     * Obtiene el environment
-     * @returns {string} Environment
+     * @returns El ambiente actual (`"PROD"` o `"TEST"`).
      */
     getVarEnvironment() {
         return this.environment;

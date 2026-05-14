@@ -1,5 +1,5 @@
 import { DeliveredType, DocumentType, Environment, ProvinceCode } from "@/types/enum";
-import { InitializeMiCorreoWithCustomerId, ProductRates, UserRegister } from "@/types/interface";
+import { InitializeMiCorreoWithCustomerId, ProductRates, ShippingImport, UserRegister } from "@/types/interface";
 import CorreoArgentinoApi from "./index";
 import dotenv from "dotenv";
 dotenv.config();
@@ -115,6 +115,66 @@ async function main() {
    */
   const responseAgencies = await correoApi.getAgencies(ProvinceCode["Ciudad Autónoma de Buenos Aires"]);
   console.log(responseAgencies);
+
+  /**
+   * Importar un envío a MiCorreo (envío a domicilio).
+   * extOrderId debe ser único — MiCorreo rechaza órdenes ya importadas.
+   */
+  const envioDomicilio: ShippingImport = {
+    customerId: correoApi.getVarCustomerId(),
+    extOrderId: "583358193",
+    orderNumber: "102",
+    recipient: {
+      name: "Juan Pérez",
+      email: "destinatario@mail.com",
+      phone: "1165446544",
+      cellPhone: "1165446544",
+    },
+    shipping: {
+      deliveryType: DeliveredType.D,
+      address: {
+        streetName: "Av. Corrientes",
+        streetNumber: "1234",
+        floor: "1",
+        apartment: "A",
+        city: "Buenos Aires",
+        provinceCode: "B",
+        postalCode: "1425",
+      },
+      weight: 1000,
+      declaredValue: 500.0,
+      height: 20,
+      length: 40,
+      width: 20,
+    },
+  };
+  const responseShipping = await correoApi.shippingImport(envioDomicilio);
+  console.log(responseShipping);
+
+  /**
+   * Importar un envío a MiCorreo (envío a sucursal).
+   * Para deliveryType "S" es obligatorio enviar el código de la agencia.
+   */
+  const envioSucursal: ShippingImport = {
+    customerId: correoApi.getVarCustomerId(),
+    extOrderId: "583358194",
+    orderNumber: "103",
+    recipient: {
+      name: "Juan Pérez",
+      email: "destinatario@mail.com",
+    },
+    shipping: {
+      deliveryType: DeliveredType.S,
+      agency: "B0107",
+      weight: 1000,
+      declaredValue: 500.0,
+      height: 20,
+      length: 40,
+      width: 20,
+    },
+  };
+  const responseShippingSucursal = await correoApi.shippingImport(envioSucursal);
+  console.log(responseShippingSucursal);
 }
 
 main();

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ylazzari-correoargentino — Ejemplos de uso</title>
+
+  <!-- Highlight.js (syntax highlighting, vía CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+
+  <style>
+    :root {
+      --color-bg: #f8f9fb;
+      --color-surface: #ffffff;
+      --color-text: #1a1f36;
+      --color-text-muted: #5a6478;
+      --color-border: #e3e8ef;
+      --color-primary: #0066cc;
+      --color-primary-light: #e6f0ff;
+      --color-accent: #ffcc00;
+      --color-success: #0a7f3f;
+      --color-warning: #b8860b;
+      --color-danger: #c43e3e;
+      --color-code-bg: #282c34;
+      --radius: 8px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--color-primary) 0%, #003d7a 100%);
+      color: white;
+      padding: 60px 24px 80px;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    header h1 {
+      margin: 0 0 12px;
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 1.15rem;
+      opacity: 0.92;
+    }
+
+    header .version {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 4px 12px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: -40px auto 60px;
+      padding: 0 24px;
+    }
+
+    .toc {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      padding: 24px 32px;
+      margin-bottom: 32px;
+    }
+
+    .toc h2 {
+      margin: 0 0 16px;
+      font-size: 1.1rem;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 24px;
+      columns: 2;
+      column-gap: 32px;
+    }
+
+    .toc li {
+      margin: 6px 0;
+      break-inside: avoid;
+    }
+
+    .toc a {
+      color: var(--color-text);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .toc a:hover {
+      color: var(--color-primary);
+    }
+
+    section {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 32px 40px;
+      margin-bottom: 24px;
+      scroll-margin-top: 16px;
+    }
+
+    section h2 {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--color-text);
+      letter-spacing: -0.01em;
+    }
+
+    section h2 .step {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      font-size: 0.85rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-right: 10px;
+      vertical-align: middle;
+      font-weight: 600;
+    }
+
+    section h3 {
+      margin: 28px 0 12px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--color-text);
+    }
+
+    section > p:first-of-type {
+      color: var(--color-text-muted);
+      margin-top: 0;
+    }
+
+    p, ul, ol { margin: 12px 0; }
+
+    code {
+      font-family: "SF Mono", "Cascadia Code", "Fira Code", Consolas, "Liberation Mono", monospace;
+      font-size: 0.9em;
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    pre {
+      margin: 16px 0;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    pre code {
+      display: block;
+      padding: 20px 24px;
+      background: var(--color-code-bg);
+      color: #abb2bf;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      border-radius: 0;
+    }
+
+    .callout {
+      margin: 20px 0;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border-left: 4px solid;
+      font-size: 0.94rem;
+    }
+
+    .callout.info {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    .callout.warn {
+      background: #fff8e1;
+      border-color: var(--color-warning);
+    }
+
+    .callout.danger {
+      background: #fdecec;
+      border-color: var(--color-danger);
+    }
+
+    .callout.success {
+      background: #e8f5ee;
+      border-color: var(--color-success);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 4px;
+      color: inherit;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    th {
+      background: var(--color-bg);
+      font-weight: 600;
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--color-text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer a { color: var(--color-primary); }
+
+    @media (max-width: 640px) {
+      header { padding: 40px 16px 60px; }
+      header h1 { font-size: 1.8rem; }
+      .container { padding: 0 12px; margin-top: -30px; }
+      section { padding: 24px 20px; }
+      .toc ol { columns: 1; }
+      pre code { padding: 14px 16px; font-size: 0.82rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ylazzari-correoargentino</h1>
+    <p>Ejemplos de uso · API MiCorreo de Correo Argentino</p>
+    <span class="version">v0.1.0</span>
+  </header>
+
+  <main class="container">
+
+    <nav class="toc">
+      <h2>Tabla de contenidos</h2>
+      <ol>
+        <li><a href="#instalacion">Instalación</a></li>
+        <li><a href="#init">Inicialización</a></li>
+        <li><a href="#cotizar">Cotizar un envío</a></li>
+        <li><a href="#cotizar-multi">Cotizar varios productos</a></li>
+        <li><a href="#cotizar-dual">Cotizar D y S simultáneamente</a></li>
+        <li><a href="#sucursales">Listar sucursales</a></li>
+        <li><a href="#envio-domicilio">Crear envío a domicilio</a></li>
+        <li><a href="#envio-sucursal">Crear envío a sucursal</a></li>
+        <li><a href="#registrar">Registrar usuario</a></li>
+        <li><a href="#flujo-completo">Flujo completo de e-commerce</a></li>
+        <li><a href="#errores">Manejo de errores</a></li>
+        <li><a href="#debug">Activar modo debug</a></li>
+      </ol>
+    </nav>
+
+    <section id="instalacion">
+      <h2><span class="step">1</span> Instalación</h2>
+      <p>Instalá la librería y axios (peer dependency).</p>
+      <pre><code class="language-bash">npm install ylazzari-correoargentino axios</code></pre>
+
+      <div class="callout info">
+        <strong>Requisitos</strong>
+        Node.js ≥ 14. Credenciales de MiCorreo (<code>userToken</code>, <code>passwordToken</code>, <code>email</code>, <code>password</code>) — se piden por separado para TEST y PROD.
+      </div>
+    </section>
+
+    <section id="init">
+      <h2><span class="step">2</span> Inicialización</h2>
+      <p>Hay dos formas de inicializar, según tengas o no el <code>customerId</code>.</p>
+
+      <h3>Modo 1: con email + password (obtiene customerId automáticamente)</h3>
+      <pre><code class="language-typescript">import CorreoArgentinoApi from "ylazzari-correoargentino";
+import { Environment } from "ylazzari-correoargentino/enums";
+
+const api = new CorreoArgentinoApi();
+
+await api.initializeAll({
+  userToken: process.env.USER_TOKEN!,
+  passwordToken: process.env.PASSWORD_TOKEN!,
+  email: process.env.EMAIL!,
+  password: process.env.PASSWORD!,
+  environment: Environment.TEST,
+});
+
+console.log("customerId:", api.getVarCustomerId());</code></pre>
+
+      <h3>Modo 2: con customerId ya conocido (salta /users/validate)</h3>
+      <pre><code class="language-typescript">import CorreoArgentinoApi from "ylazzari-correoargentino";
+import { Environment } from "ylazzari-correoargentino/enums";
+
+const api = new CorreoArgentinoApi();
+
+await api.initializeWithCustomerId({
+  userToken: process.env.USER_TOKEN!,
+  passwordToken: process.env.PASSWORD_TOKEN!,
+  customerId: "0090000025",
+  environment: Environment.PROD,
+});</code></pre>
+
+      <div class="callout warn">
+        <strong>Las credenciales son distintas por ambiente</strong>
+        Las que te dan para TEST no funcionan en PROD y viceversa. Asegurate de usar las correctas.
+      </div>
+    </section>
+
+    <section id="cotizar">
+      <h2><span class="step">3</span> Cotizar un envío</h2>
+      <p>Cotiza un envío a domicilio con un solo producto.</p>
+
+      <pre><code class="language-typescript">import { DeliveredType } from "ylazzari-correoargentino/enums";
+
+const cotizacion = await api.getRates({
+  customerId: api.getVarCustomerId(),
+  postalCodeOrigin: "1757",
+  postalCodeDestination: "1704",
+  deliveredType: DeliveredType.D,
+  dimensions: [
+    { length: 30, width: 20, height: 10, weight: 1500, quantity: 1 },
+  ],
+});
+
+console.log(cotizacion.rates);
+// [
+//   {
+//     deliveredType: "D",
+//     productType: "CP",
+//     productName: "Paq.ar Clásico",
+//     price: 498.06
+//   }
+// ]</code></pre>
+
+      <div class="callout info">
+        <strong>Límites del server</strong>
+        Peso 1–25000 g. Cada dimensión hasta 150 cm. Si pasás más, MiCorreo rechaza el request.
+      </div>
+    </section>
+
+    <section id="cotizar-multi">
+      <h2><span class="step">4</span> Cotizar varios productos en una sola request</h2>
+      <p>La librería combina las dimensiones para vos. Pasá un array y arma el contenedor virtual automáticamente.</p>
+
+      <pre><code class="language-typescript">const cotizacion = await api.getRates({
+  customerId: api.getVarCustomerId(),
+  postalCodeOrigin: "1757",
+  postalCodeDestination: "1704",
+  deliveredType: DeliveredType.D,
+  dimensions: [
+    { length: 30, width: 20, height: 10, weight: 1500, quantity: 1 },
+    { length: 20, width: 15, height: 5,  weight: 500,  quantity: 2 },
+    { length: 10, width: 10, height: 5,  weight: 200,  quantity: 3 },
+  ],
+});</code></pre>
+
+      <h3>Cómo se calcula el contenedor virtual</h3>
+      <table>
+        <thead>
+          <tr><th>Campo</th><th>Fórmula</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>weight</code></td><td>suma de <code>weight × quantity</code> de cada item</td></tr>
+          <tr><td><code>length</code></td><td>máximo de <code>length × quantity</code></td></tr>
+          <tr><td><code>width</code></td><td>máximo de <code>width</code></td></tr>
+          <tr><td><code>height</code></td><td>suma de <code>height × quantity</code> (items apilados)</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>¿Necesitás otro modelo de empaquetado?</strong>
+        Si tu lógica de embalaje es distinta (ej: cubicación volumétrica real), calculá las dimensiones en tu código y pasá un único <code>ProductDimensions</code> con los valores finales.
+      </div>
+    </section>
+
+    <section id="cotizar-dual">
+      <h2><span class="step">5</span> Cotizar domicilio Y sucursal en una sola request</h2>
+      <p>Omití <code>deliveredType</code> y MiCorreo te devuelve las dos modalidades en <code>rates</code>.</p>
+
+      <pre><code class="language-typescript">const cotizacion = await api.getRates({
+  customerId: api.getVarCustomerId(),
+  postalCodeOrigin: "1757",
+  postalCodeDestination: "1704",
+  // sin deliveredType
+  dimensions: [{ length: 30, width: 20, height: 10, weight: 1500 }],
+});
+
+cotizacion.rates.forEach((r) => {
+  console.log(`${r.deliveredType}: ${r.productName} → $${r.price}`);
+});
+// D: Paq.ar Clásico → $498.06
+// S: Paq.ar Clásico → $398.06</code></pre>
+    </section>
+
+    <section id="sucursales">
+      <h2><span class="step">6</span> Listar sucursales por provincia</h2>
+      <p>Devuelve un array de agencias de la provincia indicada. Útil cuando vas a hacer un envío con <code>deliveryType: "S"</code> y necesitás el código de la sucursal destino.</p>
+
+      <pre><code class="language-typescript">import { ProvinceCode } from "ylazzari-correoargentino/enums";
+
+const sucursales = await api.getAgencies(ProvinceCode["Provincia de Buenos Aires"]);
+
+sucursales
+  .filter((s) => s.status === "ACTIVE" && s.services.packageReception)
+  .forEach((s) => {
+    console.log(`${s.code} - ${s.name} (${s.location.address.postalCode})`);
+  });
+// B0107 - Monte Grande (B1842ZAB)
+// B0312 - La Plata Centro (B1900)
+// ...</code></pre>
+
+      <div class="callout info">
+        <strong>Cambio en v0.1.0</strong>
+        Antes el tipo decía <code>{ agencies: Agency[] }</code> pero el server siempre devolvió un array pelado. Ahora el tipo refleja la realidad: <code>Agency[]</code>. Si tu código usaba <code>response.agencies</code>, cambialo por <code>response</code>.
+      </div>
+    </section>
+
+    <section id="envio-domicilio">
+      <h2><span class="step">7</span> Crear un envío a domicilio</h2>
+      <p>Una vez cotizado, creás el envío con <code>shippingImport</code>. <code>extOrderId</code> debe ser único — si lo repetís, MiCorreo rechaza.</p>
+
+      <pre><code class="language-typescript">import { DeliveredType } from "ylazzari-correoargentino/enums";
+
+const envio = await api.shippingImport({
+  customerId: api.getVarCustomerId(),
+  extOrderId: "ORDER-12345",        // único — usá UUID o ID de tu DB
+  orderNumber: "102",                // visible en el panel de MiCorreo
+
+  recipient: {
+    name: "María González",
+    email: "maria@mail.com",
+    phone: "1144556677",
+    cellPhone: "1144556677",
+  },
+
+  shipping: {
+    deliveryType: DeliveredType.D,
+    address: {
+      streetName: "Av. Corrientes",
+      streetNumber: "1234",
+      floor: "5",
+      apartment: "B",
+      city: "Buenos Aires",
+      provinceCode: "B",
+      postalCode: "1425",
+    },
+    weight: 1000,         // gramos (entero)
+    declaredValue: 500.0,
+    height: 20,           // cm (entero, ≤255)
+    length: 40,
+    width: 20,
+  },
+});
+
+console.log("Envío creado:", envio.createdAt);
+// "2026-05-14T16:15:04.996-03:00"</code></pre>
+
+      <div class="callout warn">
+        <strong>Idempotencia</strong>
+        Guardá el <code>extOrderId</code> en tu DB antes de llamar a <code>shippingImport</code>. Si reintentás con el mismo ID, vas a recibir <code>"La orden ya fue importada con anterioridad"</code>.
+      </div>
+    </section>
+
+    <section id="envio-sucursal">
+      <h2><span class="step">8</span> Crear un envío a sucursal</h2>
+      <p>Para envíos a sucursal, en lugar de <code>address</code> pasás <code>agency</code> con el código (lo sacás de <code>getAgencies</code>).</p>
+
+      <pre><code class="language-typescript">const envio = await api.shippingImport({
+  customerId: api.getVarCustomerId(),
+  extOrderId: "ORDER-12346",
+
+  recipient: {
+    name: "María González",
+    email: "maria@mail.com",
+  },
+
+  shipping: {
+    deliveryType: DeliveredType.S,
+    agency: "B0107",      // código de la sucursal, obtenido vía getAgencies
+    weight: 1000,
+    declaredValue: 500.0,
+    height: 20,
+    length: 40,
+    width: 20,
+  },
+});</code></pre>
+
+      <div class="callout success">
+        <strong>Validaciones client-side</strong>
+        La librería valida antes de pegarle al server: si pasás <code>deliveryType: "S"</code> sin <code>agency</code>, o <code>"D"</code> sin <code>address</code> completa, te tira <code>Error</code> en local sin malgastar request.
+      </div>
+    </section>
+
+    <section id="registrar">
+      <h2><span class="step">9</span> Registrar un nuevo usuario en MiCorreo</h2>
+      <p>Dos modos: consumidor final (<code>DNI</code>) o empresa/monotributista (<code>CUIT</code>).</p>
+
+      <h3>Consumidor final (DNI)</h3>
+      <pre><code class="language-typescript">import { DocumentType } from "ylazzari-correoargentino/enums";
+
+const nuevoUsuario = await api.userRegister({
+  firstName: "Juan",
+  lastName: "Pérez",
+  email: "juan@mail.com",
+  password: "secret123",
+  documentType: DocumentType.DNI,
+  documentId: "32471960",
+  phone: "1165446544",
+  cellPhone: "1165446544",
+  address: {
+    streetName: "Vicente Lopez",
+    streetNumber: "448",
+    floor: "1",
+    apartment: "D",
+    locality: "Monte Grande",
+    city: "Esteban Echeverria",
+    provinceCode: "B",
+    postalCode: "B1842ZAB",
+  },
+});
+
+console.log("customerId:", nuevoUsuario.customerId);
+// "0090000024"</code></pre>
+
+      <h3>Empresa / monotributista (CUIT)</h3>
+      <pre><code class="language-typescript">const nuevaEmpresa = await api.userRegister({
+  firstName: "Empresa",
+  lastName: "SRL",
+  email: "facturacion@empresa.com",
+  password: "secret456",
+  documentType: DocumentType.CUIT,
+  documentId: "30324719607",
+  phone: "1165446544",
+  cellPhone: "1165446544",
+  address: {
+    streetName: "Vicente Lopez",
+    streetNumber: "448",
+    floor: "1",
+    apartment: "D",
+    locality: "Monte Grande",
+    city: "Esteban Echeverria",
+    provinceCode: "B",
+    postalCode: "B1842ZAB",
+  },
+});</code></pre>
+
+      <div class="callout warn">
+        <strong>MiCorreo NO valida el email</strong>
+        Si pasás un email falso, el registro funciona igual. La validación es responsabilidad tuya. Si el email ya existe en MiCorreo, devuelve <code>402 "Email existente"</code>.
+      </div>
+    </section>
+
+    <section id="flujo-completo">
+      <h2><span class="step">10</span> Flujo completo de e-commerce</h2>
+      <p>Caso real: tu tienda online recibe un pedido y necesita cotizar, mostrar opciones al cliente, y crear el envío cuando confirma.</p>
+
+      <pre><code class="language-typescript">import CorreoArgentinoApi from "ylazzari-correoargentino";
+import { Environment, DeliveredType, ProvinceCode } from "ylazzari-correoargentino/enums";
+import type { ShippingImport } from "ylazzari-correoargentino/interfaces";
+
+// ───── 1. Inicialización (una vez al levantar el server) ─────
+const api = new CorreoArgentinoApi();
+await api.initializeAll({
+  userToken: process.env.USER_TOKEN!,
+  passwordToken: process.env.PASSWORD_TOKEN!,
+  email: process.env.EMAIL!,
+  password: process.env.PASSWORD!,
+  environment: Environment.PROD,
+});
+
+// ───── 2. El cliente arma su carrito ─────
+const carrito = [
+  { sku: "ABC", length: 30, width: 20, height: 10, weight: 1500, quantity: 1 },
+  { sku: "DEF", length: 20, width: 15, height: 5,  weight: 500,  quantity: 2 },
+];
+
+// ───── 3. Cotizar ambas opciones (D y S) para mostrar al cliente ─────
+const cotizacion = await api.getRates({
+  customerId: api.getVarCustomerId(),
+  postalCodeOrigin: "1425",   // tu depósito
+  postalCodeDestination: "1704", // dirección del cliente
+  dimensions: carrito.map((p) => ({
+    length: p.length,
+    width: p.width,
+    height: p.height,
+    weight: p.weight,
+    quantity: p.quantity,
+  })),
+});
+
+// El cliente elige una opción y los datos de entrega.
+const opcionElegida = cotizacion.rates.find((r) => r.deliveredType === "D");
+if (!opcionElegida) throw new Error("Sin opciones de envío disponibles");
+
+// ───── 4. Si elige sucursal, primero le mostramos las disponibles ─────
+const sucursales = await api.getAgencies(
+  ProvinceCode["Provincia de Buenos Aires"]
+);
+const sucursalesActivas = sucursales.filter(
+  (s) => s.status === "ACTIVE" && s.services.packageReception
+);
+
+// ───── 5. Crear el envío ─────
+const orderId = `ORDER-${Date.now()}`; // o tu ID interno
+
+const envio: ShippingImport = {
+  customerId: api.getVarCustomerId(),
+  extOrderId: orderId,
+  orderNumber: "TIENDA-102",
+  recipient: {
+    name: "María González",
+    email: "maria@mail.com",
+    cellPhone: "1144556677",
+  },
+  shipping: {
+    deliveryType: DeliveredType.D,
+    address: {
+      streetName: "Av. Corrientes",
+      streetNumber: "1234",
+      city: "Buenos Aires",
+      provinceCode: "B",
+      postalCode: "1425",
+    },
+    weight: carrito.reduce((s, p) => s + p.weight * p.quantity, 0),
+    declaredValue: 1500,
+    height: 30,
+    length: 40,
+    width: 25,
+  },
+};
+
+const resultado = await api.shippingImport(envio);
+
+// ───── 6. Guardar en tu DB para evitar duplicados ─────
+await db.orders.update(orderId, {
+  shippingCreatedAt: resultado.createdAt,
+  shippingProvider: "correo-argentino",
+});</code></pre>
+
+      <div class="callout success">
+        <strong>Persistí el extOrderId</strong>
+        Es la clave de idempotencia. Si tu API rest hace retry de la request, querés evitar crear envíos duplicados.
+      </div>
+    </section>
+
+    <section id="errores">
+      <h2><span class="step">11</span> Manejo de errores</h2>
+      <p>Todos los métodos tiran <code>Error</code> con un mensaje del formato:</p>
+      <pre><code class="language-typescript">// 🔴 Error en {método}: {código} - {mensaje}</code></pre>
+
+      <pre><code class="language-typescript">try {
+  await api.shippingImport(envio);
+} catch (err) {
+  if (err instanceof Error) {
+    console.error(err.message);
+    // "🔴 Error en shippingImport: 402 - La orden ya fue importada con anterioridad."
+
+    if (err.message.includes("orden ya fue importada")) {
+      // Tratar como éxito idempotente: el envío ya existe en MiCorreo.
+      return { alreadyCreated: true };
+    }
+
+    throw err;
+  }
+}</code></pre>
+
+      <h3>Errores típicos</h3>
+      <table>
+        <thead>
+          <tr><th>HTTP</th><th>Causa</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>400</td><td>Falta un campo obligatorio</td></tr>
+          <tr><td>401</td><td>JWT inválido (re-inicializá)</td></tr>
+          <tr><td>402</td><td>Regla de negocio (ver mensaje específico)</td></tr>
+          <tr><td>404</td><td>Recurso no existe (customerId equivocado, sucursal inexistente)</td></tr>
+          <tr><td>409</td><td>Conflicto (idempotencia)</td></tr>
+          <tr><td>429</td><td>Rate limit — implementá backoff exponencial</td></tr>
+          <tr><td>5xx</td><td>Error del lado de Correo</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="debug">
+      <h2><span class="step">12</span> Activar modo debug</h2>
+      <p>Por defecto la librería no imprime nada en consola. Si necesitás ver qué se está enviando, pasá <code>debug: true</code> al constructor.</p>
+
+      <pre><code class="language-typescript">const api = new CorreoArgentinoApi({ debug: true });
+
+await api.initializeAll({ ... });
+// 🌍 Ambiente configurado: https://apitest.correoargentino.com.ar/micorreo/v1
+// 🔑 Token obtenido correctamente
+// 🆔 CustomerId obtenido correctamente
+
+await api.getRates({ ... });
+// 🔍 Payload getRates: { customerId: "...", postalCodeOrigin: "...", ... }</code></pre>
+
+      <div class="callout danger">
+        <strong>NUNCA actives debug en producción</strong>
+        Aunque la librería ya no logea el JWT (lo arreglamos en v0.1.0), los payloads de envíos contienen PII: emails, nombres, direcciones. Mantenelo desactivado en producción para no leakear datos personales en tus logs centralizados.
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>
+      <strong>ylazzari-correoargentino</strong> v0.1.0 —
+      <a href="https://github.com/YamilEzequiel/correo-argentino">GitHub</a> ·
+      <a href="https://www.npmjs.com/package/ylazzari-correoargentino">npm</a> ·
+      MIT © Yamil Lazzari
+    </p>
+  </footer>
+
+  <script>
+    hljs.highlightAll();
+  </script>
+</body>
+</html>

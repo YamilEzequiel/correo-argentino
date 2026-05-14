@@ -1,12 +1,7 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const enum_1 = require("@/types/enum");
-const index_1 = __importDefault(require("./index"));
-const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
+import { DeliveredType, DocumentType, Environment, ProvinceCode } from "@/types/enum";
+import CorreoArgentinoApi from "./index";
+import dotenv from "dotenv";
+dotenv.config();
 /**
  * Función principal que muestra un ejemplo de uso de la API de MiCorreo
  * @returns {void}
@@ -15,12 +10,12 @@ async function main() {
     /**
      * Inicializamos la API
      */
-    const correoApi = new index_1.default();
+    const correoApi = new CorreoArgentinoApi();
     const email = process.env.EMAIL || "";
     const password = process.env.PASSWORD || "";
     const userToken = process.env.USER_TOKEN || "";
     const passwordToken = process.env.PASSWORD_TOKEN || "";
-    const environment = process.env.ENVIRONMENT || enum_1.Environment.PROD;
+    const environment = process.env.ENVIRONMENT || Environment.PROD;
     const customerId = process.env.CUSTOMER_ID || "";
     /**
      * Tenemos dos formas de inicializar la API
@@ -79,7 +74,7 @@ async function main() {
         customerId: correoApi.getVarCustomerId(),
         postalCodeOrigin: "2000",
         postalCodeDestination: "2000",
-        deliveredType: enum_1.DeliveredType.D,
+        deliveredType: DeliveredType.D,
     };
     const responseCost = await correoApi.getRates(data);
     console.log(responseCost);
@@ -91,7 +86,7 @@ async function main() {
         password: "123456",
         firstName: "Test",
         lastName: "Test",
-        documentType: enum_1.DocumentType.DNI,
+        documentType: DocumentType.DNI,
         documentId: "12345678",
         phone: "444555666",
         cellPhone: "1234567890",
@@ -111,7 +106,7 @@ async function main() {
     /**
      * Obtener las agencias de envío
      */
-    const responseAgencies = await correoApi.getAgencies(enum_1.ProvinceCode["Ciudad Autónoma de Buenos Aires"]);
+    const responseAgencies = await correoApi.getAgencies(ProvinceCode["Ciudad Autónoma de Buenos Aires"]);
     console.log(responseAgencies);
     /**
      * Importar un envío a MiCorreo (envío a domicilio).
@@ -128,7 +123,7 @@ async function main() {
             cellPhone: "1165446544",
         },
         shipping: {
-            deliveryType: enum_1.DeliveredType.D,
+            deliveryType: DeliveredType.D,
             address: {
                 streetName: "Av. Corrientes",
                 streetNumber: "1234",
@@ -160,7 +155,7 @@ async function main() {
             email: "destinatario@mail.com",
         },
         shipping: {
-            deliveryType: enum_1.DeliveredType.S,
+            deliveryType: DeliveredType.S,
             agency: "B0107",
             weight: 1000,
             declaredValue: 500.0,

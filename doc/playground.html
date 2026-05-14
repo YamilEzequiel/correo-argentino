@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ylazzari-correoargentino — Playground</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+
+  <style>
+    :root {
+      --color-bg: #f4f6f9;
+      --color-surface: #ffffff;
+      --color-text: #1a1f36;
+      --color-text-muted: #5a6478;
+      --color-border: #dde3ed;
+      --color-primary: #0066cc;
+      --color-primary-dark: #003d7a;
+      --color-primary-light: #e6f0ff;
+      --color-success: #0a7f3f;
+      --color-success-bg: #e8f5ee;
+      --color-warning: #b8860b;
+      --color-warning-bg: #fff8e1;
+      --color-danger: #c43e3e;
+      --color-danger-bg: #fdecec;
+      --color-code-bg: #282c34;
+      --radius: 8px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+
+    /* ───── Header (sticky status bar) ───── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+      color: white;
+      padding: 16px 24px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    header h1 small {
+      font-weight: 400;
+      opacity: 0.8;
+      margin-left: 8px;
+      font-size: 0.85rem;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ffaa00;
+      box-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
+    }
+
+    .status-dot.ok {
+      background: #6dd58c;
+      box-shadow: 0 0 8px rgba(109, 213, 140, 0.6);
+    }
+
+    .status-dot.err {
+      background: #ff6b6b;
+      box-shadow: 0 0 8px rgba(255, 107, 107, 0.6);
+    }
+
+    /* ───── Main ───── */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    section {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    section header {
+      position: static;
+      background: linear-gradient(to right, var(--color-primary-light), #f0f5fc);
+      color: var(--color-text);
+      padding: 14px 22px;
+      box-shadow: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    section header:hover {
+      background: linear-gradient(to right, #d9e8ff, #e6eef7);
+    }
+
+    section header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--color-primary);
+      color: white;
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .badge.get { background: #6c757d; }
+    .badge.post { background: var(--color-success); }
+
+    .section-body {
+      padding: 22px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 720px) {
+      .section-body { grid-template-columns: 1fr; }
+    }
+
+    /* ───── Forms ───── */
+    .form-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      padding: 8px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-family: inherit;
+      background: white;
+      color: var(--color-text);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.12);
+    }
+
+    .field textarea {
+      font-family: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+      font-size: 0.82rem;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--color-warning-bg);
+      border-radius: 6px;
+      border: 1px solid #f0d877;
+    }
+
+    .toggle input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .toggle label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #6b5400;
+    }
+
+    button.run {
+      background: var(--color-primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.05s;
+      margin-top: 4px;
+    }
+
+    button.run:hover { background: var(--color-primary-dark); }
+    button.run:active { transform: translateY(1px); }
+    button.run:disabled {
+      background: #b0b8c4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.run.danger { background: var(--color-danger); }
+    button.run.danger:hover { background: #9c2929; }
+
+    /* ───── Response panel ───── */
+    .response {
+      background: var(--color-code-bg);
+      border-radius: 6px;
+      overflow: hidden;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .response-header {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      color: #abb2bf;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .response-status {
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+    }
+
+    .response-status.pending { background: #555; color: #ddd; }
+    .response-status.success { background: var(--color-success); color: white; }
+    .response-status.error { background: var(--color-danger); color: white; }
+
+    .response pre {
+      margin: 0;
+      flex: 1;
+    }
+
+    .response pre code {
+      display: block;
+      padding: 14px 18px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      font-family: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+      background: transparent;
+      color: #abb2bf;
+    }
+
+    .empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      font-size: 0.85rem;
+      font-style: italic;
+    }
+
+    .callout {
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      margin: 0 0 14px;
+    }
+
+    .callout.info { background: var(--color-primary-light); border-left: 3px solid var(--color-primary); color: var(--color-primary-dark); }
+    .callout.warn { background: var(--color-warning-bg); border-left: 3px solid var(--color-warning); }
+
+    .meta {
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      margin: 0 0 12px;
+    }
+
+    code.inline {
+      font-family: "SF Mono", "Cascadia Code", Consolas, monospace;
+      background: #eef2f7;
+      color: var(--color-primary);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 0.86em;
+    }
+
+    /* ───── Audit table ───── */
+    .audit-section .section-body {
+      display: block;
+    }
+
+    .audit-toolbar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .audit-toolbar .summary {
+      margin-left: auto;
+      color: var(--color-text-muted);
+      font-size: 0.88rem;
+    }
+
+    button.secondary {
+      background: white;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    button.secondary:hover {
+      background: var(--color-bg);
+      border-color: var(--color-text-muted);
+    }
+    button.secondary.danger {
+      color: var(--color-danger);
+      border-color: #f0c0c0;
+    }
+    button.secondary.danger:hover {
+      background: var(--color-danger-bg);
+    }
+
+    table.audit {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    table.audit th,
+    table.audit td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    table.audit th {
+      background: var(--color-bg);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--color-text-muted);
+    }
+
+    table.audit tbody tr:hover {
+      background: #fafbfd;
+    }
+
+    table.audit tr.done {
+      opacity: 0.55;
+    }
+
+    table.audit tr.done td:nth-child(2) {
+      text-decoration: line-through;
+    }
+
+    table.audit td.idcol {
+      font-family: "SF Mono", Consolas, monospace;
+      font-size: 0.82rem;
+      color: var(--color-primary-dark);
+    }
+
+    table.audit td.actioncol {
+      text-align: right;
+      font-size: 0.85rem;
+    }
+
+    table.audit td.actioncol a {
+      color: var(--color-primary);
+      text-decoration: none;
+    }
+
+    table.audit td.actioncol a:hover {
+      text-decoration: underline;
+    }
+
+    .empty-state {
+      padding: 32px;
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: 0.92rem;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🚚 ylazzari-correoargentino <small>playground</small></h1>
+    <div class="status-pill">
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">Conectando…</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- INIT -->
+    <section>
+      <header>
+        <h2><span class="badge post">POST</span> Inicializar API</h2>
+      </header>
+      <div class="section-body">
+        <div class="form-grid">
+          <p class="meta">
+            Lee las credenciales desde <code class="inline">.env</code>. Si está cargado <code class="inline">CUSTOMER_ID</code>,
+            usa <code class="inline">initializeWithCustomerId</code>; sino, <code class="inline">initializeAll</code> con email+password.
+          </p>
+          <button class="run" data-action="init">Inicializar</button>
+        </div>
+        <div class="response" id="resp-init">
+          <div class="response-header">
+            Respuesta
+            <span class="response-status pending" id="status-init">esperando</span>
+          </div>
+          <div class="empty">Hacé click en "Inicializar"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- RATES -->
+    <section>
+      <header>
+        <h2><span class="badge post">POST</span> Cotizar envío <code class="inline">/api/rates</code></h2>
+      </header>
+      <div class="section-body">
+        <form class="form-grid" data-action="rates">
+          <div class="field-row">
+            <div class="field">
+              <label>CP origen</label>
+              <input name="postalCodeOrigin" value="1757" required />
+            </div>
+            <div class="field">
+              <label>CP destino</label>
+              <input name="postalCodeDestination" value="1704" required />
+            </div>
+          </div>
+          <div class="field">
+            <label>Tipo de entrega</label>
+            <select name="deliveredType">
+              <option value="">Ambas (D + S)</option>
+              <option value="D">Domicilio (D)</option>
+              <option value="S">Sucursal (S)</option>
+            </select>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Peso (g)</label>
+              <input name="weight" type="number" value="1500" required />
+            </div>
+            <div class="field">
+              <label>Largo (cm)</label>
+              <input name="length" type="number" value="30" required />
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Ancho (cm)</label>
+              <input name="width" type="number" value="20" required />
+            </div>
+            <div class="field">
+              <label>Alto (cm)</label>
+              <input name="height" type="number" value="10" required />
+            </div>
+          </div>
+          <button class="run" type="submit">Cotizar</button>
+        </form>
+        <div class="response" id="resp-rates">
+          <div class="response-header">
+            Respuesta
+            <span class="response-status pending" id="status-rates">esperando</span>
+          </div>
+          <div class="empty">Completá el form y dale a "Cotizar"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- AGENCIES -->
+    <section>
+      <header>
+        <h2><span class="badge get">GET</span> Listar agencias <code class="inline">/api/agencies</code></h2>
+      </header>
+      <div class="section-body">
+        <form class="form-grid" data-action="agencies">
+          <div class="field">
+            <label>Código de provincia</label>
+            <select name="provinceCode">
+              <option value="C">C — Ciudad Autónoma de Buenos Aires</option>
+              <option value="B" selected>B — Provincia de Buenos Aires</option>
+              <option value="A">A — Salta</option>
+              <option value="D">D — San Luis</option>
+              <option value="E">E — Entre Ríos</option>
+              <option value="F">F — La Rioja</option>
+              <option value="G">G — Santiago del Estero</option>
+              <option value="H">H — Chaco</option>
+              <option value="J">J — San Juan</option>
+              <option value="K">K — Catamarca</option>
+              <option value="L">L — La Pampa</option>
+              <option value="M">M — Mendoza</option>
+              <option value="N">N — Misiones</option>
+              <option value="P">P — Formosa</option>
+              <option value="Q">Q — Neuquén</option>
+              <option value="R">R — Río Negro</option>
+              <option value="S">S — Santa Fe</option>
+              <option value="T">T — Tucumán</option>
+              <option value="U">U — Chubut</option>
+              <option value="V">V — Tierra del Fuego</option>
+              <option value="W">W — Corrientes</option>
+              <option value="X">X — Córdoba</option>
+              <option value="Y">Y — Jujuy</option>
+              <option value="Z">Z — Santa Cruz</option>
+            </select>
+          </div>
+          <button class="run" type="submit">Listar</button>
+        </form>
+        <div class="response" id="resp-agencies">
+          <div class="response-header">
+            Respuesta
+            <span class="response-status pending" id="status-agencies">esperando</span>
+          </div>
+          <div class="empty">Elegí provincia y dale a "Listar"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SHIPPING IMPORT -->
+    <section>
+      <header>
+        <h2><span class="badge post">POST</span> Crear envío <code class="inline">/api/shipping-import</code></h2>
+      </header>
+      <div class="section-body">
+        <form class="form-grid" data-action="shipping-import">
+          <div class="callout warn">
+            <strong>⚠️ Cada click sin dry-run crea un envío REAL en MiCorreo TEST.</strong>
+            Usá un <code class="inline">extOrderId</code> único cada vez.
+          </div>
+
+          <div class="toggle">
+            <input type="checkbox" id="dryRun" name="dryRun" checked />
+            <label for="dryRun">🧪 Dry run (solo validar payload, no enviar)</label>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>extOrderId</label>
+              <input name="extOrderId" required />
+            </div>
+            <div class="field">
+              <label>orderNumber</label>
+              <input name="orderNumber" value="102" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Tipo de entrega</label>
+            <select name="deliveryType" id="deliveryTypeSelect">
+              <option value="D" selected>D — Domicilio</option>
+              <option value="S">S — Sucursal</option>
+            </select>
+          </div>
+
+          <!-- Domicilio fields -->
+          <div id="domicilio-fields">
+            <div class="field-row">
+              <div class="field">
+                <label>Calle</label>
+                <input name="streetName" value="Av. Corrientes" />
+              </div>
+              <div class="field">
+                <label>Número</label>
+                <input name="streetNumber" value="1234" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Ciudad</label>
+                <input name="city" value="Buenos Aires" />
+              </div>
+              <div class="field">
+                <label>Provincia (código)</label>
+                <input name="provinceCode" value="B" maxlength="1" />
+              </div>
+            </div>
+            <div class="field">
+              <label>Código postal</label>
+              <input name="postalCode" value="1425" />
+            </div>
+          </div>
+
+          <!-- Sucursal fields -->
+          <div id="sucursal-fields" style="display:none">
+            <div class="field">
+              <label>Código de sucursal (agency)</label>
+              <input name="agency" placeholder="ej: B0107" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Recipient name</label>
+              <input name="recipientName" value="María González" required />
+            </div>
+            <div class="field">
+              <label>Recipient email</label>
+              <input name="recipientEmail" type="email" value="maria@mail.com" required />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Peso (g)</label>
+              <input name="weight" type="number" value="1000" required />
+            </div>
+            <div class="field">
+              <label>Valor declarado</label>
+              <input name="declaredValue" type="number" step="0.01" value="500" required />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Alto (cm)</label>
+              <input name="height" type="number" value="20" required />
+            </div>
+            <div class="field">
+              <label>Largo (cm)</label>
+              <input name="length" type="number" value="40" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Ancho (cm)</label>
+            <input name="width" type="number" value="20" required />
+          </div>
+
+          <button class="run" type="submit" id="ship-btn">Validar (dry run)</button>
+        </form>
+        <div class="response" id="resp-shipping-import">
+          <div class="response-header">
+            Respuesta
+            <span class="response-status pending" id="status-shipping-import">esperando</span>
+          </div>
+          <div class="empty">Completá el form y dale a "Validar"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- USER REGISTER -->
+    <section>
+      <header>
+        <h2><span class="badge post">POST</span> Registrar usuario <code class="inline">/api/user-register</code></h2>
+      </header>
+      <div class="section-body">
+        <form class="form-grid" data-action="user-register">
+          <p class="meta">Pegá un JSON válido con la forma de <code class="inline">UserRegister</code>.</p>
+          <div class="field">
+            <label>Body (JSON)</label>
+            <textarea name="body" rows="14">{
+  "firstName": "Juan",
+  "lastName": "Pérez",
+  "email": "juan@mail.com",
+  "password": "secret123",
+  "documentType": "DNI",
+  "documentId": "32471960",
+  "phone": "1165446544",
+  "cellPhone": "1165446544",
+  "address": {
+    "streetName": "Vicente Lopez",
+    "streetNumber": "448",
+    "floor": "1",
+    "apartment": "D",
+    "locality": "Monte Grande",
+    "city": "Esteban Echeverria",
+    "provinceCode": "B",
+    "postalCode": "B1842ZAB"
+  }
+}</textarea>
+          </div>
+          <button class="run" type="submit">Registrar</button>
+        </form>
+        <div class="response" id="resp-user-register">
+          <div class="response-header">
+            Respuesta
+            <span class="response-status pending" id="status-user-register">esperando</span>
+          </div>
+          <div class="empty">Editá el JSON y dale a "Registrar"</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════ -->
+    <!-- SHIPMENTS AUDIT LOG -->
+    <section class="audit-section">
+      <header>
+        <h2>📋 Envíos creados — log de auditoría local</h2>
+      </header>
+      <div class="section-body">
+        <div class="callout info">
+          <strong>Para qué sirve esto.</strong>
+          Cada envío que crees con dry-run <strong>desactivado</strong> queda registrado acá automáticamente.
+          El log es <strong>local</strong> (vive en <code class="inline">scripts/shipments-log.json</code>, no se commitea) y sirve como checklist para que el operador humano sepa qué etiquetas tiene que bajar del panel de MiCorreo.
+          Marcá ✓ cada vez que descargues una.
+        </div>
+        <div class="audit-toolbar">
+          <button class="secondary" id="audit-refresh">🔄 Refrescar</button>
+          <button class="secondary danger" id="audit-clear">🗑️ Limpiar log</button>
+          <a class="secondary" href="https://www.correoargentino.com.ar/MiCorreo/public/" target="_blank" style="text-decoration:none; display:inline-block">↗ Abrir panel MiCorreo</a>
+          <span class="summary" id="audit-summary">—</span>
+        </div>
+        <div id="audit-table-container">
+          <div class="empty-state">Aún no hay envíos creados. Apenas hagas un <code class="inline">shippingImport</code> real, va a aparecer acá.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // Estado global
+    // ═══════════════════════════════════════════════════════
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+
+    function setStatus(state, text) {
+      const dot = $("#statusDot");
+      const txt = $("#statusText");
+      dot.classList.remove("ok", "err");
+      if (state === "ok") dot.classList.add("ok");
+      else if (state === "err") dot.classList.add("err");
+      txt.textContent = text;
+    }
+
+    async function refreshStatus() {
+      try {
+        const r = await fetch("/api/status");
+        const data = await r.json();
+        if (data.initialized) {
+          setStatus("ok", `${data.environment} · ${data.customerId || "(sin customerId)"}`);
+        } else if (data.lastInitError) {
+          setStatus("err", "Error init: " + data.lastInitError);
+        } else {
+          setStatus("", "Sin inicializar");
+        }
+      } catch (e) {
+        setStatus("err", "Server no responde");
+      }
+    }
+
+    function showResponse(id, data, ok) {
+      const panel = $("#resp-" + id);
+      const statusEl = $("#status-" + id);
+      panel.querySelectorAll(".empty").forEach((el) => el.remove());
+
+      statusEl.className = "response-status " + (ok ? "success" : "error");
+      statusEl.textContent = ok ? "200 OK" : "ERROR";
+
+      let pre = panel.querySelector("pre");
+      if (!pre) {
+        pre = document.createElement("pre");
+        const code = document.createElement("code");
+        code.className = "language-json";
+        pre.appendChild(code);
+        panel.appendChild(pre);
+      }
+      const code = pre.querySelector("code");
+      code.textContent = JSON.stringify(data, null, 2);
+      code.removeAttribute("data-highlighted");
+      hljs.highlightElement(code);
+    }
+
+    async function callApi(method, url, body) {
+      const opts = { method, headers: { "Content-Type": "application/json" } };
+      if (body !== undefined) opts.body = JSON.stringify(body);
+      const r = await fetch(url, opts);
+      const data = await r.json().catch(() => ({ error: "Respuesta no-JSON" }));
+      return { ok: r.ok, status: r.status, data };
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // Init button
+    // ═══════════════════════════════════════════════════════
+    $("[data-action=init]").addEventListener("click", async (e) => {
+      e.target.disabled = true;
+      e.target.textContent = "Inicializando…";
+      const r = await callApi("POST", "/api/init");
+      showResponse("init", r.data, r.ok);
+      e.target.disabled = false;
+      e.target.textContent = "Inicializar";
+      await refreshStatus();
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Rates form
+    // ═══════════════════════════════════════════════════════
+    $("[data-action=rates]").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const payload = {
+        postalCodeOrigin: fd.get("postalCodeOrigin"),
+        postalCodeDestination: fd.get("postalCodeDestination"),
+        dimensions: [{
+          weight: Number(fd.get("weight")),
+          length: Number(fd.get("length")),
+          width: Number(fd.get("width")),
+          height: Number(fd.get("height")),
+        }],
+      };
+      const dt = fd.get("deliveredType");
+      if (dt) payload.deliveredType = dt;
+
+      const btn = e.target.querySelector("button");
+      btn.disabled = true;
+      const r = await callApi("POST", "/api/rates", payload);
+      showResponse("rates", r.data, r.ok);
+      btn.disabled = false;
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Agencies form
+    // ═══════════════════════════════════════════════════════
+    $("[data-action=agencies]").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const pc = fd.get("provinceCode");
+      const btn = e.target.querySelector("button");
+      btn.disabled = true;
+      const r = await callApi("GET", "/api/agencies?provinceCode=" + pc);
+      showResponse("agencies", r.data, r.ok);
+      btn.disabled = false;
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Shipping form (con dry-run + toggle de delivery type)
+    // ═══════════════════════════════════════════════════════
+    const dtSelect = $("#deliveryTypeSelect");
+    const domFields = $("#domicilio-fields");
+    const sucFields = $("#sucursal-fields");
+    dtSelect.addEventListener("change", () => {
+      const isD = dtSelect.value === "D";
+      domFields.style.display = isD ? "block" : "none";
+      sucFields.style.display = isD ? "none" : "block";
+    });
+
+    const dryRunCb = $("#dryRun");
+    const shipBtn = $("#ship-btn");
+    function updateShipBtn() {
+      if (dryRunCb.checked) {
+        shipBtn.textContent = "Validar (dry run)";
+        shipBtn.classList.remove("danger");
+      } else {
+        shipBtn.textContent = "🚨 ENVIAR A MICORREO";
+        shipBtn.classList.add("danger");
+      }
+    }
+    dryRunCb.addEventListener("change", updateShipBtn);
+    updateShipBtn();
+
+    // Pre-fill extOrderId con timestamp
+    $("[name=extOrderId]").value = "ORDER-" + Date.now();
+
+    $("[data-action=shipping-import]").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const deliveryType = fd.get("deliveryType");
+
+      const shipping = {
+        deliveryType,
+        weight: Number(fd.get("weight")),
+        declaredValue: Number(fd.get("declaredValue")),
+        height: Number(fd.get("height")),
+        length: Number(fd.get("length")),
+        width: Number(fd.get("width")),
+      };
+
+      if (deliveryType === "D") {
+        shipping.address = {
+          streetName: fd.get("streetName"),
+          streetNumber: fd.get("streetNumber"),
+          city: fd.get("city"),
+          provinceCode: fd.get("provinceCode"),
+          postalCode: fd.get("postalCode"),
+        };
+      } else {
+        shipping.agency = fd.get("agency");
+      }
+
+      const payload = {
+        dryRun: dryRunCb.checked,
+        extOrderId: fd.get("extOrderId"),
+        orderNumber: fd.get("orderNumber") || undefined,
+        recipient: {
+          name: fd.get("recipientName"),
+          email: fd.get("recipientEmail"),
+        },
+        shipping,
+      };
+
+      shipBtn.disabled = true;
+      const r = await callApi("POST", "/api/shipping-import", payload);
+      showResponse("shipping-import", r.data, r.ok);
+      shipBtn.disabled = false;
+      updateShipBtn();
+      // Bumpear extOrderId para próxima vez
+      $("[name=extOrderId]").value = "ORDER-" + Date.now();
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // User register form
+    // ═══════════════════════════════════════════════════════
+    $("[data-action=user-register]").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      let payload;
+      try {
+        payload = JSON.parse(fd.get("body"));
+      } catch (err) {
+        showResponse("user-register", { error: "JSON inválido: " + err.message }, false);
+        return;
+      }
+      const btn = e.target.querySelector("button");
+      btn.disabled = true;
+      const r = await callApi("POST", "/api/user-register", payload);
+      showResponse("user-register", r.data, r.ok);
+      btn.disabled = false;
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Audit log (envíos creados)
+    // ═══════════════════════════════════════════════════════
+    function formatDate(iso) {
+      if (!iso) return "—";
+      try {
+        const d = new Date(iso);
+        return d.toLocaleString("es-AR", {
+          day: "2-digit", month: "2-digit", year: "numeric",
+          hour: "2-digit", minute: "2-digit",
+        });
+      } catch {
+        return iso;
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function refreshAuditLog() {
+      const r = await callApi("GET", "/api/shipments-log");
+      const list = Array.isArray(r.data) ? r.data : [];
+      const container = $("#audit-table-container");
+      const summary = $("#audit-summary");
+
+      const pending = list.filter((e) => !e.downloaded).length;
+      summary.textContent = list.length === 0
+        ? "—"
+        : `${list.length} total · ${pending} pendiente${pending !== 1 ? "s" : ""} de descargar`;
+
+      if (list.length === 0) {
+        container.innerHTML = `<div class="empty-state">Aún no hay envíos creados. Apenas hagas un <code class="inline">shippingImport</code> real, va a aparecer acá.</div>`;
+        return;
+      }
+
+      const rows = list.map((e) => `
+        <tr class="${e.downloaded ? "done" : ""}" data-eo="${escapeHtml(e.extOrderId)}">
+          <td>
+            <input type="checkbox" class="audit-check" ${e.downloaded ? "checked" : ""} title="Marcar como descargado" />
+          </td>
+          <td class="idcol">${escapeHtml(e.orderNumber || "—")}</td>
+          <td class="idcol">${escapeHtml(e.extOrderId)}</td>
+          <td>${escapeHtml(e.recipient?.name || "—")}<br><small style="color:#888">${escapeHtml(e.recipient?.email || "")}</small></td>
+          <td>${e.deliveryType === "S" ? "🏬 " : "🏠 "}${escapeHtml(e.destination)}</td>
+          <td><small>${escapeHtml(formatDate(e.createdAt))}</small></td>
+        </tr>
+      `).join("");
+
+      container.innerHTML = `
+        <table class="audit">
+          <thead>
+            <tr>
+              <th style="width:32px"></th>
+              <th>Order #</th>
+              <th>extOrderId</th>
+              <th>Destinatario</th>
+              <th>Destino</th>
+              <th>Creado en MiCorreo</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      // Bind checkboxes
+      container.querySelectorAll(".audit-check").forEach((cb) => {
+        cb.addEventListener("change", async (ev) => {
+          const tr = ev.target.closest("tr");
+          const extOrderId = tr.dataset.eo;
+          await callApi("PATCH", "/api/shipments-log/" + encodeURIComponent(extOrderId), {
+            downloaded: ev.target.checked,
+          });
+          tr.classList.toggle("done", ev.target.checked);
+          // Refrescamos el resumen
+          refreshAuditLog();
+        });
+      });
+    }
+
+    $("#audit-refresh").addEventListener("click", refreshAuditLog);
+
+    $("#audit-clear").addEventListener("click", async () => {
+      if (!confirm("¿Limpiar TODO el log de auditoría? Esta acción no se puede deshacer.")) return;
+      await callApi("DELETE", "/api/shipments-log");
+      refreshAuditLog();
+    });
+
+    // Hook: cuando se crea un envío real con éxito, refrescamos el log
+    const originalShipSubmit = $("[data-action=shipping-import]").onsubmit;
+    $("[data-action=shipping-import]").addEventListener("submit", () => {
+      // pequeño delay para que el server termine de escribir el JSON
+      setTimeout(refreshAuditLog, 600);
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Boot
+    // ═══════════════════════════════════════════════════════
+    refreshStatus();
+    refreshAuditLog();
+    setInterval(refreshStatus, 10000);
+  </script>
+</body>
+</html>
