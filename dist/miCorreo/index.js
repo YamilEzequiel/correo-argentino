@@ -133,9 +133,16 @@ class CorreoArgentinoApi {
      *
      * @remarks
      * El header `Authorization: Basic <base64>` ya está configurado en `this.api`
-     * por `setEnvironment`. Tras obtener el JWT, se actualiza el header default
-     * de la instancia axios a `Authorization: Bearer <jwt>` para que todas las
-     * llamadas siguientes lo usen automáticamente.
+     * por `setEnvironment` (necesario para llamar /token). Tras obtener el JWT,
+     * **recreamos la instancia axios completa** con `Authorization: Bearer <jwt>`.
+     *
+     * Por qué no usamos `defaults.headers.common.Authorization`:
+     * cuando `axios.create({ headers: { Authorization: "Basic ..." } })`
+     * registra el Authorization en `defaults.headers.Authorization` (path directo,
+     * NO en `.common`). Ese tiene mayor precedencia que `headers.common.<X>`
+     * en el merge de headers de axios, por lo cual nunca se aplicaría el Bearer.
+     * La forma confiable de cambiar el auth scheme entre Basic y Bearer es
+     * recrear la instancia.
      */
     async authToken() {
         try {
@@ -145,8 +152,14 @@ class CorreoArgentinoApi {
             }
             this.token = data.token;
             this.log("🔑 Token obtenido correctamente");
-            // Reemplaza el Basic auth por el Bearer en todas las requests siguientes.
-            this.api.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+            // Recreamos la instancia con el Bearer para todas las requests siguientes.
+            this.api = axios_1.default.create({
+                baseURL: this.environment === enum_1.Environment.PROD ? enviroment_1.URL_PROD : enviroment_1.URL_TEST,
+                headers: {
+                    Authorization: `Bearer ${this.token}`,
+                    "Content-Type": "application/json",
+                },
+            });
             return data;
         }
         catch (error) {
